@@ -138,11 +138,7 @@ function makeBestMoves(game: Game): Step[][] {
 					})
 			}
 			if (steps.length !== blockers.length) continue
-			if (
-				card > 200 &&
-				steps.some((step) => step.type === 'board' && step.to === game.piles.length - 1)
-			)
-				continue
+			if (card > 200 && !isOverflowOpen(steps, game)) continue
 
 			steps.push({
 				type: 'discard',
@@ -190,6 +186,16 @@ function makeBestSpot(card1: number, column1: number, steps: Step[], game: Game)
 	}
 
 	return spots.toSorted((a, b) => a.penalty - b.penalty)[0]
+}
+
+function isOverflowOpen(steps: Step[], game: Game): boolean {
+	return steps.reduce(
+		(isOpen, step) => {
+			if (isOpen) return step.type === 'board' && step.to !== game.piles.length - 1
+			else return step.type === 'board' && step.from === game.piles.length - 1
+		},
+		game.piles[game.piles.length - 1].length === 0,
+	)
 }
 
 // parsing
