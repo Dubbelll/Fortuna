@@ -1,0 +1,12 @@
+t20 g8 g6 r11 r10 y13 r9
+t12 t17 t19 t3 g5 t18 t21
+r8 b3 t7 y8 r3 t9 b11
+t4 r6 t1 t11 y3 t10 y4
+b6 t2 g11 b8 y5 y10 t14
+x
+g4 b4 b5 g13 y9 r12 r13
+t13 b12 b2 t0 r5 r4 t6
+g3 b9 b7 t8 g12 b13 y12
+y7 g7 g9 y11 r2 g10 y6
+r7 y2 t16 g2 b10 t15 t5
+x
