@@ -18,6 +18,11 @@ export interface Step {
 	penalty: number
 }
 
+export interface StepGroup {
+	steps: Step[]
+	penalty: number
+}
+
 interface Spot {
 	type: 'board' | 'discard'
 	column: number
@@ -67,7 +72,9 @@ function followBranch(game: Game) {
 	self.postMessage({ code: 'update', payload: game.piles })
 	const branches = makeBranches(game)
 	for (const branch of branches) {
-		followBranch(branch)
+		setTimeout(() => {
+			followBranch(branch)
+		}, 0)
 	}
 
 	return
@@ -95,8 +102,13 @@ function makeGame(piles: Pile[]): Game {
 }
 
 function makeBranches(game: Game): Game[] {
-	const options = makeBestMoves(game)
-	return options.map((steps) => makeBranch(steps, game))
+	const opens = makeOpenOverflowStepGroups(game)
+	const discards = makeDiscardStepGroups(game)
+	const stacks = discards.length === 0 ? makeStackStepGroups(game) : []
+
+	return [...opens, ...discards, ...stacks]
+		.toSorted((a, b) => a.penalty - b.penalty)
+		.map((group) => makeBranch(group.steps, game))
 }
 
 function makeBranch(steps: Step[], game: Game): Game {
@@ -112,11 +124,32 @@ function makeBranch(steps: Step[], game: Game): Game {
 	return branch
 }
 
-function makeBestMoves(game: Game): Step[][] {
-	let options: {
-		steps: Step[]
-		penalty: number
-	}[] = []
+function makeOpenOverflowStepGroups(game: Game): StepGroup[] {
+	// do this in discard instead
+	if (game.piles[game.piles.length - 1].length === 0) return []
+	let groups: StepGroup[] = []
+	const from = game.piles.length - 1
+	const card1 = game.piles[game.piles.length - 1][0]
+	for (let to = 0; to < game.piles.length; to++) {
+		const card2 = game.piles[to][0]
+
+		if (card2 === undefined)
+			groups.push({
+				steps: [{ type: 'board', card: card1, from, to, penalty: -1 }],
+				penalty: -1,
+			})
+		if (Math.abs(card1 - card2) === 1)
+			groups.push({
+				steps: [{ type: 'board', card: card1, from, to, penalty: -1 }],
+				penalty: -1,
+			})
+	}
+
+	return groups
+}
+
+function makeDiscardStepGroups(game: Game): StepGroup[] {
+	let groups: StepGroup[] = []
 	for (let from = 0; from < game.piles.length; from++) {
 		const pile = game.piles[from]
 		for (let depth = 0; depth < pile.length; depth++) {
@@ -127,7 +160,7 @@ function makeBestMoves(game: Game): Step[][] {
 			const steps: Step[] = []
 			const blockers = game.piles[from].slice(0, depth)
 			for (const blocker of blockers) {
-				const spot = makeBestSpot(blocker, from, steps, game)
+				const spot = makeSpot(blocker, from, steps, game)
 				if (spot)
 					steps.push({
 						type: spot.type,
@@ -147,17 +180,17 @@ function makeBestMoves(game: Game): Step[][] {
 				to,
 				penalty: -1,
 			})
-			options.push({
+			groups.push({
 				steps,
 				penalty: steps.reduce((sum, step) => sum + step.penalty, 0),
 			})
 		}
 	}
 
-	return options.toSorted((a, b) => a.penalty - b.penalty).map((option) => option.steps)
+	return groups
 }
 
-function makeBestSpot(card1: number, column1: number, steps: Step[], game: Game): Spot | undefined {
+function makeSpot(card1: number, column1: number, steps: Step[], game: Game): Spot | undefined {
 	let spots: Spot[] = []
 
 	for (let column2 = 0; column2 < game.piles.length; column2++) {
@@ -186,6 +219,42 @@ function makeBestSpot(card1: number, column1: number, steps: Step[], game: Game)
 	}
 
 	return spots.toSorted((a, b) => a.penalty - b.penalty)[0]
+}
+
+function makeStackStepGroups(game: Game): StepGroup[] {
+	let groups: StepGroup[] = []
+	for (let to = 0; to < game.piles.length; to++) {
+		const card = game.piles[to][0]
+		if (card === undefined) continue
+
+		const steps = makeStackSteps(to, [card], [], game)
+		if (steps.length === 0) continue
+		groups.push({
+			steps,
+			penalty: steps.reduce((sum, step) => sum + step.penalty, 0),
+		})
+	}
+
+	return groups
+}
+
+function makeStackSteps(to: number, stack: number[], steps: Step[], game: Game): Step[] {
+	let additions = 0
+	for (let from = 0; from < game.piles.length; from++) {
+		if (from === to) continue
+
+		const card1 = stack[stack.length - 1]
+		const card2 = game.piles[from][0]
+		if (stack.includes(card2)) continue
+		if (Math.abs(card1 - card2) === 1) {
+			stack.push(card2)
+			steps.push({ type: 'board', card: card2, from, to, penalty: card1 > card2 ? 0.1 : 0.2 })
+			additions += 1
+		}
+	}
+	if (additions !== 0) return makeStackSteps(to, stack, steps, game)
+
+	return steps
 }
 
 function isOverflowOpen(steps: Step[], game: Game): boolean {
