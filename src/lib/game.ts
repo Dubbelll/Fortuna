@@ -42,6 +42,7 @@ self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 
 // playing
 let solution: Game | undefined = undefined
+let bestEffort: Game | undefined = undefined
 function solve(game: Game) {
 	solution = undefined
 	followBranch(game)
@@ -53,6 +54,14 @@ function followBranch(game: Game) {
 		solution = game
 		self.postMessage({ code: 'done', payload: game })
 		return
+	}
+	if (
+		!bestEffort ||
+		game.piles.reduce((sum: number, pile: number[]) => sum + pile.length, 0) <
+			bestEffort.piles.reduce((sum: number, pile: number[]) => sum + pile.length, 0)
+	) {
+		bestEffort = game
+		console.log(bestEffort)
 	}
 
 	self.postMessage({ code: 'update', payload: game.piles })
@@ -129,6 +138,11 @@ function makeBestMoves(game: Game): Step[][] {
 					})
 			}
 			if (steps.length !== blockers.length) continue
+			if (
+				card > 200 &&
+				steps.some((step) => step.type === 'board' && step.to === game.piles.length - 1)
+			)
+				continue
 
 			steps.push({
 				type: 'discard',
@@ -152,6 +166,8 @@ function makeBestSpot(card1: number, column1: number, steps: Step[], game: Game)
 
 	for (let column2 = 0; column2 < game.piles.length; column2++) {
 		if (column2 === column1) continue
+		if (column2 === game.piles.length - 1 && game.piles[game.piles.length - 1].length !== 0)
+			continue
 		const card2 =
 			steps.find((step) => step.type === 'board' && step.to === column2)?.card ||
 			game.piles[column2][0]
