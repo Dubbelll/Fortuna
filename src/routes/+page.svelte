@@ -5,7 +5,8 @@
 	import { onMount } from 'svelte'
 
 	let input = $state(example)
-	let remaining = $state(0)
+	let iteration = $state(0)
+	let remaining = $state(70)
 	let lowestRemaining = $state(70)
 	let solution = $state('')
 
@@ -14,6 +15,7 @@
 		game = new Game()
 		game.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'update') {
+				iteration += 1
 				remaining = event.data.payload.reduce(
 					(sum: number, pile: number[]) => sum + pile.length,
 					0,
@@ -43,6 +45,7 @@
 
 <p contenteditable bind:textContent={input}></p>
 <button onclick={start}>START</button>
+<p>{iteration}</p>
 <p>{remaining}</p>
 <p>{lowestRemaining}</p>
 <p>{solution}</p>

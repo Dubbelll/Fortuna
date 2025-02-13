@@ -24,6 +24,13 @@ interface Spot {
 	penalty: number
 }
 
+const deck = [
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
+	119, 120, 121, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 302, 303, 304, 305,
+	306, 307, 308, 309, 310, 311, 312, 313, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
+	413, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513,
+]
+
 // worker
 
 self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
@@ -43,7 +50,6 @@ function solve(game: Game) {
 function followBranch(game: Game) {
 	if (solution) return
 	if (game.piles.every((pile) => pile.length === 0)) {
-		console.log('BINGO', game)
 		solution = game
 		self.postMessage({ code: 'done', payload: game })
 		return
@@ -183,6 +189,10 @@ export function parse(input: string): Game {
 			return suit + rank
 		})
 	})
+	const cards = piles.reduce((cards, pile) => cards.concat(pile), [])
+	const isValid = cards.length === deck.length && deck.every((card) => cards.includes(card))
+	if (!isValid) throw 'invalid input'
+
 	return makeGame(piles)
 }
 
