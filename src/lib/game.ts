@@ -5,7 +5,6 @@ export interface Game {
 	discard: Discard
 	solution: Step[]
 	remaining: number
-	previousRemaining: number
 }
 
 type Pile = number[]
@@ -69,8 +68,7 @@ function solve(initial: Game) {
 		self.postMessage({ code: 'update', payload: bestEffort.remaining })
 		const branches = makeBranches(game)
 		for (let index = branches.length - 1; index >= 0; index--) {
-			const branch = branches[index]
-			if (branch.remaining < branch.previousRemaining) stack.push(branches[index])
+			stack.push(branches[index])
 		}
 	}
 
@@ -98,7 +96,6 @@ function makeGame(piles: Pile[]): Game {
 		discard: [99, 122, 201, 301, 401, 501],
 		solution: [],
 		remaining: 70,
-		previousRemaining: 70,
 	}
 }
 
@@ -118,7 +115,6 @@ function makeBranch(steps: Step[], game: Game): Game {
 		discard: [...game.discard],
 		solution: [...game.solution, ...steps],
 		remaining: game.remaining,
-		previousRemaining: game.remaining,
 	}
 	for (const step of steps) {
 		perform(step, branch)
@@ -251,7 +247,13 @@ function makeStackSteps(to: number, stack: number[], steps: Step[], game: Game):
 		if (stack.includes(card2)) continue
 		if (Math.abs(card1 - card2) === 1) {
 			stack.push(card2)
-			steps.push({ type: 'board', card: card2, from, to, penalty: card1 > card2 ? 0.1 : 0.2 })
+			steps.push({
+				type: 'board',
+				card: card2,
+				from,
+				to,
+				penalty: card1 > card2 ? -0.2 : -0.1,
+			})
 			additions += 1
 		}
 	}
