@@ -4,6 +4,8 @@ export interface Game {
 	// tarotLow, tarotHigh, yellow, red, green, blue
 	discard: Discard
 	solution: Step[]
+	remaining: number
+	previousRemaining: number
 }
 
 type Pile = number[]
@@ -46,38 +48,34 @@ self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 }
 
 // playing
-let solution: Game | undefined = undefined
-let bestEffort: Game | undefined = undefined
-function solve(game: Game) {
-	solution = undefined
-	followBranch(game)
-}
+function solve(initial: Game) {
+	let stack: Game[] = [initial]
+	let bestEffort: Game | undefined = undefined
 
-function followBranch(game: Game) {
-	if (solution) return
-	if (game.piles.every((pile) => pile.length === 0)) {
-		solution = game
-		self.postMessage({ code: 'done', payload: game })
-		return
-	}
-	if (
-		!bestEffort ||
-		game.piles.reduce((sum: number, pile: number[]) => sum + pile.length, 0) <
-			bestEffort.piles.reduce((sum: number, pile: number[]) => sum + pile.length, 0)
-	) {
-		bestEffort = game
-		console.log(bestEffort)
-	}
+	while (stack.length > 0) {
+		const game = stack.pop()
+		if (!game) continue
 
-	self.postMessage({ code: 'update', payload: game.piles })
-	const branches = makeBranches(game)
-	for (const branch of branches) {
-		setTimeout(() => {
-			followBranch(branch)
-		}, 0)
+		if (game.remaining === 0) {
+			self.postMessage({ code: 'done', payload: game })
+			console.log('bingo', game)
+			break
+		}
+		if (!bestEffort || game.remaining < bestEffort.remaining) {
+			bestEffort = game
+			console.log(bestEffort)
+		}
+
+		self.postMessage({ code: 'update', payload: bestEffort.remaining })
+		const branches = makeBranches(game)
+		for (let index = branches.length - 1; index >= 0; index--) {
+			const branch = branches[index]
+			if (branch.remaining < branch.previousRemaining) stack.push(branches[index])
+		}
 	}
 
-	return
+	self.postMessage({ code: 'deadend', payload: bestEffort })
+	console.log('deadend', bestEffort)
 }
 
 function perform(step: Step, game: Game) {
@@ -88,6 +86,7 @@ function perform(step: Step, game: Game) {
 	if (step.type === 'discard') {
 		game.piles[step.from].shift()
 		game.discard[step.to] = step.card
+		game.remaining--
 	}
 }
 
@@ -98,6 +97,8 @@ function makeGame(piles: Pile[]): Game {
 		piles,
 		discard: [99, 122, 201, 301, 401, 501],
 		solution: [],
+		remaining: 70,
+		previousRemaining: 70,
 	}
 }
 
@@ -116,6 +117,8 @@ function makeBranch(steps: Step[], game: Game): Game {
 		piles: game.piles.map((pile) => [...pile]),
 		discard: [...game.discard],
 		solution: [...game.solution, ...steps],
+		remaining: game.remaining,
+		previousRemaining: game.remaining,
 	}
 	for (const step of steps) {
 		perform(step, branch)

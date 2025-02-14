@@ -15,12 +15,12 @@
 		game = new Game()
 		game.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'update') {
-				iteration += 1
-				remaining = event.data.payload.reduce(
-					(sum: number, pile: number[]) => sum + pile.length,
-					0,
-				)
-				lowestRemaining = Math.min(lowestRemaining, remaining)
+				iteration = event.data.payload
+				// remaining = event.data.payload.reduce(
+				// 	(sum: number, pile: number[]) => sum + pile.length,
+				// 	0,
+				// )
+				// lowestRemaining = Math.min(lowestRemaining, remaining)
 				// iteration = event.data.payload.map(
 				// 	(step: [number, number]) => `${step[0]}->${step[1]}`,
 				// )
@@ -46,8 +46,6 @@
 <p contenteditable bind:textContent={input}></p>
 <button onclick={start}>START</button>
 <p>{iteration}</p>
-<p>{remaining}</p>
-<p>{lowestRemaining}</p>
 <p>{solution}</p>
 
 <style>
