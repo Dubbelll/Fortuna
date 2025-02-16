@@ -47,7 +47,7 @@ function solve(root: Game) {
 
 		if (branch.remaining === 0) {
 			self.postMessage({ code: 'done', payload: branch })
-			console.log('bingo', branch)
+			console.log('done', branch)
 			break
 		}
 		if (!best || branch.remaining < best.remaining) {
@@ -62,8 +62,8 @@ function solve(root: Game) {
 		}
 	}
 
-	self.postMessage({ code: 'deadend', payload: best })
-	console.log('deadend', best)
+	self.postMessage({ code: 'fail', payload: best })
+	console.log('fail', best)
 }
 
 function perform(step: Step, branch: Game) {
@@ -85,8 +85,10 @@ function perform(step: Step, branch: Game) {
 function makeBranches(branch: Game): Game[] {
 	let branches: Game[] = []
 	if (branches.length === 0) branches = makeDiscardBranches(branch)
+	if (branches.length === 0) branches = makeEmptyPilesBranches(branch)
+	if (branches.length === 0) console.log('deadend', branch)
 
-	return branches.sort((a, b) => a.penalty - b.penalty || a.remaining - b.remaining)
+	return branches
 }
 
 function makeDiscardBranches(root: Game): Game[] {
@@ -121,13 +123,85 @@ function makeDiscardBranches(root: Game): Game[] {
 		}
 	}
 
-	return branches
+	return branches.sort((a, b) => a.penalty - b.penalty || a.remaining - b.remaining)
 }
+
+// function makeEmptyPilesBranches(root: Game): Game[] {
+// 	let branches: Game[] = []
+// 	for (let from = 0; from < root.piles.length; from++) {
+// 		const pile = root.piles[from]
+// 		for (let depth = 0; depth < pile.length; depth++) {
+// 			const card = pile[depth]
+// 			const to = root.discard.findIndex((discard) => Math.abs(discard - card) === 1)
+// 			if (to === -1) continue
+
+// 			const branch = makeBranch(root)
+// 			const blockers = root.piles[from].slice(0, depth)
+// 			for (const blocker of blockers) {
+// 				const step = makeStep(blocker, from, branch)
+// 				if (step) perform(step, branch)
+// 			}
+// 			if (branch.solution.length - root.solution.length !== blockers.length) continue
+// 			if (card > 200 && !isOverflowOpen(branch)) continue
+
+// 			perform(
+// 				{
+// 					type: 'discard',
+// 					card,
+// 					from,
+// 					to,
+// 					penalty: 0,
+// 				},
+// 				branch,
+// 			)
+// 			branches.push(branch)
+// 		}
+// 	}
+
+// 	return branches
+// }
 
 function makeEmptyPilesBranches(root: Game): Game[] {
 	let branches: Game[] = []
+	for (let from = 0; from < root.piles.length; from++) {
+		if (root.piles[from].length === 0) continue
 
-	return branches
+		const branch = makeEmptyPileBranch(from, makeBranch(root))
+		if (branch.solution.length !== root.solution.length) branches.push(branch)
+	}
+
+	return branches.sort(
+		(a, b) => countNonEmptyPiles(a) - countNonEmptyPiles(b) || a.penalty - b.penalty,
+	)
+}
+
+function makeEmptyPileBranch(from: number, branch: Game): Game {
+	const card1 = branch.piles[from][0]
+	for (let to = 0; to < branch.piles.length; to++) {
+		if (to === from) continue
+
+		for (let depth = 0; depth < branch.piles[to].length; depth++) {
+			const card2 = branch.piles[to][depth]
+			if (Math.abs(card1 - card2) !== 1) continue
+
+			const subpile = branch.piles[to].slice(0, depth + 1)
+			const steps: Step[] = []
+			for (const card of subpile) {
+				const step = makeStep(card, to, branch)
+				if (step) steps.push(step)
+			}
+			if (steps.length !== subpile.length) continue
+
+			for (const step of steps) {
+				perform(step, branch)
+			}
+			console.log(from)
+			if (branch.piles[from].length === 0) return branch
+			return makeEmptyPileBranch(from, branch)
+		}
+	}
+
+	return branch
 }
 
 function makeStep(card1: number, column1: number, game: Game): Step | undefined {
@@ -238,4 +312,8 @@ function isOverflowSafe(card: number, game: Game): boolean {
 	}
 
 	return false
+}
+
+function countNonEmptyPiles(game: Game): number {
+	return game.piles.reduce((sum, pile) => (pile.length > 0 ? sum++ : sum), 0)
 }
