@@ -1,12 +1,12 @@
-g9 y10 r6 b4 t6 g2 r12
-b11 t21 b8 y6 t12 g7 t11
-y8 g10 y3 y9 b5 g5 t14
-r3 y2 r2 y5 b10 t13 b13
-g13 t5 t7 g11 t4 t19 y12
+b6 g4 r5 r7 b8 b7 g13
+t19 r11 b2 b4 y11 r12 g7
+t9 r8 g10 r10 y9 g6 y10
+y7 t4 t20 y8 t11 y5 y4
+y3 t6 y2 t5 t18 g5 t15
 x
-t1 r11 r13 r4 b12 g6 b2
-b9 t2 t0 t20 b7 t10 r7
-t8 y13 y7 r8 r9 t15 t9
-r10 t18 y11 b3 g3 g12 b6
-g8 y4 t17 r5 t3 t16 g4
+t7 t1 t2 y12 t10 t13 g9
+t8 g12 r3 r6 b10 r4 b12
+y6 r2 b9 r9 t3 g2 r13
+t12 t21 t0 t14 t16 b13 b11
+y13 g3 b3 g8 b5 t17 g11
 x

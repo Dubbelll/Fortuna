@@ -284,9 +284,9 @@ function parseSuit(suit: string): number {
 			return 100
 		case 'r':
 			return 200
-		case 'b':
-			return 300
 		case 'g':
+			return 300
+		case 'b':
 			return 400
 		case 'y':
 			return 500
