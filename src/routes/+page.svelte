@@ -15,7 +15,7 @@
 		game = new Game()
 		game.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'update') {
-				iteration = event.data.payload
+				iteration += 1
 				// remaining = event.data.payload.reduce(
 				// 	(sum: number, pile: number[]) => sum + pile.length,
 				// 	0,
