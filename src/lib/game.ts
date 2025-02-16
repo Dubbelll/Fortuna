@@ -195,9 +195,11 @@ function makeEmptyPileBranch(from: number, branch: Game): Game {
 			for (const step of steps) {
 				perform(step, branch)
 			}
-			console.log(from)
-			if (branch.piles[from].length === 0) return branch
-			return makeEmptyPileBranch(from, branch)
+			if (branch.piles[to].length === 0) {
+				return branch
+			} else {
+				return makeEmptyPileBranch(from, branch)
+			}
 		}
 	}
 
