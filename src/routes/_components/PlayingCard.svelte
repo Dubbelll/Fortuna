@@ -6,7 +6,7 @@
 
 <div
 	class="card"
-	class:tarot={card.id >= 100 && card.id < 200}
+	class:tarot={card.id >= 99 && card.id < 200}
 	class:red={card.id >= 200 && card.id < 300}
 	class:green={card.id >= 300 && card.id < 400}
 	class:blue={card.id >= 400 && card.id < 500}

@@ -15,7 +15,7 @@ type Discard = [number, number, number, number, number, number]
 export interface Step {
 	type: 'move' | 'discard'
 	card1: number
-	card2?: number
+	card2: number | undefined
 	from: number
 	to: number
 	penalty: number
@@ -32,8 +32,7 @@ const deck = [
 
 self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 	if (event.data.code === 'start') {
-		const game = parse(event.data.payload)
-		solve(game)
+		solve(event.data.payload)
 	}
 }
 
@@ -110,6 +109,7 @@ function makeDiscardBranches(root: Game): Game[] {
 				{
 					type: 'discard',
 					card1: card,
+					card2: branch.discard[to],
 					from,
 					to,
 					penalty: 0,

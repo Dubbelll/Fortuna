@@ -3,12 +3,13 @@
 	import PlayingCard from './PlayingCard.svelte'
 
 	let { piles }: { piles: Card[][] } = $props()
+	let columns = $derived(piles.map((pile) => [...pile].reverse()))
 </script>
 
 <div class="board">
-	{#each piles as pile}
+	{#each columns as column}
 		<div class="pile">
-			{#each pile as card, index (card.id)}
+			{#each column as card, index (card.id)}
 				<div class="card" style:margin-top={`${index * 24}px`}>
 					<PlayingCard {card} />
 				</div>

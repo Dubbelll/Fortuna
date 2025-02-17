@@ -1,9 +1,34 @@
+import type { Game } from './solve'
+
 export interface Card {
 	id: number
 	face: string
 }
 
-export function makePiles(): Card[][] {
+type Column = Card[]
+
+export function makeGame(columns: Column[]): Game {
+	return {
+		piles: columns.map((column) => column.map((card) => card.id)),
+		discard: [99, 122, 201, 301, 401, 501],
+		solution: [],
+		remaining: 70,
+		penalty: 0,
+	}
+}
+
+export function makeDiscard(): Card[] {
+	return [
+		{ id: 99, face: 'T99' },
+		{ id: 122, face: 'T122' },
+		{ id: 201, face: 'R1' },
+		{ id: 301, face: 'G1' },
+		{ id: 401, face: 'B1' },
+		{ id: 501, face: 'Y1' },
+	]
+}
+
+export function makePiles(): Column[] {
 	let deck = makeShuffledDeck()
 	let piles: Card[][] = [[], [], [], [], [], [], [], [], [], []]
 	for (let column = 0; column < 10; column++) {
@@ -11,7 +36,7 @@ export function makePiles(): Card[][] {
 			piles[column][depth] = deck[column * 7 + depth]
 		}
 	}
-	return [...piles.slice(0, 5), [], ...piles.slice(5)]
+	return [...piles.slice(0, 5), [], ...piles.slice(5), []]
 }
 
 function makeShuffledDeck(): Card[] {

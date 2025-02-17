@@ -1,48 +1,71 @@
 <script lang="ts">
-	import example from '$lib/example.txt?raw'
-	import type { Step } from '$lib/game'
-	import Game from '$lib/game?worker'
-	import { makePiles } from '$lib/play'
+	import { makeDiscard, makeGame, makePiles } from '$lib/play'
+	import type { Step } from '$lib/solve'
+	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import Board from './_components/Board.svelte'
+	import Discard from './_components/Discard.svelte'
 
+	let discard = $state(makeDiscard())
 	let piles = $state(makePiles())
-	let input = $state(example)
+	let solution: Step[] = $state([])
 	let iteration = $state(0)
-	let remaining = $state(70)
-	let lowestRemaining = $state(70)
-	let solution = $state('')
+	let result = $state('')
 
-	let game: Worker
+	let solver: Worker
 	onMount(() => {
-		game = new Game()
-		game.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
+		solver = new Solver()
+		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'update') {
 				iteration += 1
 			}
 			if (event.data.code === 'done') {
-				remaining = 0
-				lowestRemaining = 0
+				result = 'done'
 				solution = event.data.payload.solution
-					.map(
-						(step: Step) =>
-							`${step.from}->${step.to}${step.type === 'discard' ? '(auto)\n' : '\n'}`,
-					)
-					.join('')
+			}
+			if (event.data.code === 'fail') {
+				result = 'fail'
 			}
 		}
 	})
 
+	function reset() {
+		discard = makeDiscard()
+		piles = makePiles()
+		solution = []
+		iteration = 0
+		result = ''
+	}
+
 	function start() {
-		game.postMessage({ code: 'start', payload: input })
+		const game = makeGame($state.snapshot(piles))
+		solver.postMessage({ code: 'start', payload: game })
+	}
+
+	function next() {
+		const step = solution.shift()
+		if (!step) return
+
+		const card = piles[step.from].shift()
+		if (!card) return
+		if (step.type === 'move') {
+			piles[step.to] = [card, ...piles[step.to]]
+		}
+		if (step.type === 'discard') {
+			discard[step.to] = card
+		}
 	}
 </script>
 
+<Discard {discard} />
 <Board {piles} />
-<p contenteditable bind:textContent={input}></p>
+<button onclick={reset}>RESET</button>
 <button onclick={start}>START</button>
 <p>{iteration}</p>
-<p>{solution}</p>
+<p>{result}</p>
+{#if solution.length > 0}
+	<button onclick={next}>NEXT</button>
+{/if}
 
 <style>
 	p {
