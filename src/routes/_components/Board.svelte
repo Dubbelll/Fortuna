@@ -22,7 +22,7 @@
 	.board {
 		display: grid;
 		grid-template-columns: repeat(11, 1fr);
-		gap: 8px;
+		column-gap: 8px;
 	}
 
 	.pile {

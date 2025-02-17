@@ -56,8 +56,8 @@
 
 <div class="container">
 	<div class="controls">
-		<button onclick={reset} disabled={solving}>RESET</button>
 		<button onclick={start} disabled={solving}>SOLVE</button>
+		<button onclick={reset} disabled={solving}>RESET</button>
 		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
 	</div>
 	<Discard {discard} />
@@ -73,10 +73,12 @@
 	.controls {
 		display: grid;
 		grid-auto-flow: column;
+		grid-auto-columns: min-content;
 		gap: 8px;
 	}
 
 	button {
+		padding: 0 8px;
 		border: 2px solid black;
 		background-color: white;
 	}
