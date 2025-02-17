@@ -12,7 +12,7 @@
 	class:blue={card.id >= 400 && card.id < 500}
 	class:yellow={card.id >= 500 && card.id < 600}
 >
-	<span class="face">{card.face}</span>
+	<div class="face">{card.face}</div>
 </div>
 
 <style>
@@ -45,6 +45,6 @@
 	}
 
 	.face {
-		background-color: white;
+		padding-left: 4px;
 	}
 </style>

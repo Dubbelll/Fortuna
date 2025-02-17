@@ -9,22 +9,19 @@
 	let discard = $state(makeDiscard())
 	let piles = $state(makePiles())
 	let solution: Step[] = $state([])
-	let iteration = $state(0)
-	let result = $state('')
+	let solving = $state(false)
 
 	let solver: Worker
 	onMount(() => {
 		solver = new Solver()
 		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
-			if (event.data.code === 'update') {
-				iteration += 1
-			}
 			if (event.data.code === 'done') {
-				result = 'done'
+				solving = false
 				solution = event.data.payload.solution
 			}
 			if (event.data.code === 'fail') {
-				result = 'fail'
+				solving = false
+				solution = []
 			}
 		}
 	})
@@ -33,11 +30,11 @@
 		discard = makeDiscard()
 		piles = makePiles()
 		solution = []
-		iteration = 0
-		result = ''
+		solving = false
 	}
 
 	function start() {
+		solving = true
 		const game = makeGame($state.snapshot(piles))
 		solver.postMessage({ code: 'start', payload: game })
 	}
@@ -57,22 +54,30 @@
 	}
 </script>
 
-<div>
+<div class="container">
 	<div class="controls">
-		<button onclick={reset}>RESET</button>
-		<button onclick={start}>SOLVE</button>
+		<button onclick={reset} disabled={solving}>RESET</button>
+		<button onclick={start} disabled={solving}>SOLVE</button>
 		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
 	</div>
-	<div>
-		<Discard {discard} />
-		<Board {piles} />
-	</div>
+	<Discard {discard} />
+	<Board {piles} />
 </div>
 
 <style>
+	.container {
+		display: grid;
+		gap: 8px;
+		padding: 8px;
+	}
 	.controls {
 		display: grid;
 		grid-auto-flow: column;
 		gap: 8px;
+	}
+
+	button {
+		border: 2px solid black;
+		background-color: white;
 	}
 </style>
