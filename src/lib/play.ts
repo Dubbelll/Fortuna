@@ -19,7 +19,7 @@ export function makeGame(columns: Column[]): Game {
 
 export function makeDiscard(): Card[] {
 	return [
-		{ id: 99, face: 'T99' },
+		{ id: 99, face: 'T-1' },
 		{ id: 122, face: 'T122' },
 		{ id: 201, face: 'R1' },
 		{ id: 301, face: 'G1' },

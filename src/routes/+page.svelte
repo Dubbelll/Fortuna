@@ -57,18 +57,22 @@
 	}
 </script>
 
-<Discard {discard} />
-<Board {piles} />
-<button onclick={reset}>RESET</button>
-<button onclick={start}>START</button>
-<p>{iteration}</p>
-<p>{result}</p>
-{#if solution.length > 0}
-	<button onclick={next}>NEXT</button>
-{/if}
+<div>
+	<div class="controls">
+		<button onclick={reset}>RESET</button>
+		<button onclick={start}>SOLVE</button>
+		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
+	</div>
+	<div>
+		<Discard {discard} />
+		<Board {piles} />
+	</div>
+</div>
 
 <style>
-	p {
-		white-space: pre;
+	.controls {
+		display: grid;
+		grid-auto-flow: column;
+		gap: 8px;
 	}
 </style>
