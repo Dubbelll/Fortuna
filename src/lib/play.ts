@@ -9,11 +9,16 @@ type Column = Card[]
 
 export function makeGame(columns: Column[]): Game {
 	return {
+		key:
+			columns.reduce((key, column) => key + (column[0]?.id || 'X'), '') +
+			'99122201301401501X',
 		piles: columns.map((column) => column.map((card) => card.id)),
 		discard: [99, 122, 201, 301, 401, 501],
-		solution: [],
+		stash: [],
 		remaining: 70,
-		penalty: 0,
+		iteration: 0,
+		solution: [],
+		by: '',
 	}
 }
 
@@ -29,14 +34,14 @@ export function makeDiscard(): Card[] {
 }
 
 export function makePiles(): Column[] {
-	let deck = makeShuffledDeck()
-	let piles: Card[][] = [[], [], [], [], [], [], [], [], [], []]
+	const deck = makeShuffledDeck()
+	const piles: Card[][] = [[], [], [], [], [], [], [], [], [], []]
 	for (let column = 0; column < 10; column++) {
 		for (let depth = 0; depth < 7; depth++) {
 			piles[column][depth] = deck[column * 7 + depth]
 		}
 	}
-	return [...piles.slice(0, 5), [], ...piles.slice(5), []]
+	return [...piles.slice(0, 5), [], ...piles.slice(5)]
 }
 
 function makeShuffledDeck(): Card[] {

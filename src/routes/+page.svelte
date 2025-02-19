@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { makeDiscard, makeGame, makePiles } from '$lib/play'
-	import type { Step } from '$lib/solve'
+	import type { Move } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import Board from './_components/Board.svelte'
@@ -8,7 +8,7 @@
 
 	let discard = $state(makeDiscard())
 	let piles = $state(makePiles())
-	let solution: Step[] = $state([])
+	let solution: Move[] = $state([])
 	let solving = $state(false)
 
 	let solver: Worker
@@ -17,7 +17,7 @@
 		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'done') {
 				solving = false
-				solution = event.data.payload.solution
+				solution = event.data.payload
 			}
 			if (event.data.code === 'fail') {
 				solving = false
@@ -40,17 +40,16 @@
 	}
 
 	function next() {
-		const step = solution.shift()
-		if (!step) return
-
-		const card = piles[step.from].shift()
-		if (!card) return
-		if (step.type === 'move') {
-			piles[step.to] = [card, ...piles[step.to]]
-		}
-		if (step.type === 'discard') {
-			discard[step.to] = card
-		}
+		// const move = solution.shift()
+		// if (!move) return
+		// const card = piles[move.from].shift()
+		// if (!card) return
+		// if (move.type === 'move') {
+		// 	piles[move.to] = [card, ...piles[move.to]]
+		// }
+		// if (move.type === 'discard') {
+		// 	discard[move.to] = card
+		// }
 	}
 </script>
 
