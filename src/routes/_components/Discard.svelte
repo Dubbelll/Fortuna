@@ -2,7 +2,7 @@
 	import type { Card } from '$lib/play'
 	import PlayingCard from './PlayingCard.svelte'
 
-	let { discard }: { discard: Card[] } = $props()
+	let { discard, stash }: { discard: Card[]; stash: Card | undefined } = $props()
 </script>
 
 <div class="discard">
@@ -12,6 +12,11 @@
 	<div class="card" style:grid-column="2">
 		<PlayingCard card={discard[1]} />
 	</div>
+	{#if stash}
+		<div class="card" style:grid-column="5">
+			<PlayingCard card={stash} />
+		</div>
+	{/if}
 	<div class="card" style:grid-column="8">
 		<PlayingCard card={discard[2]} />
 	</div>

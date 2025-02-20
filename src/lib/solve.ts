@@ -22,7 +22,7 @@ type Pile = number[]
 type Discard = [number, number, number, number, number, number]
 
 export interface Move {
-	type: 'pile' | 'stash' | 'unstash'
+	type: 'pile' | 'stash' | 'unstash' | 'discardPile' | 'discardStash'
 	cards: number[]
 	from: number
 	to: number
@@ -119,6 +119,12 @@ function discard(game: Game) {
 				game.discard[suit] = stash
 				game.stash.shift()
 				game.remaining--
+				game.solution.push({
+					type: 'discardStash',
+					cards: [stash],
+					from: 0,
+					to: suit,
+				})
 				discarded = true
 			}
 		}
@@ -135,6 +141,12 @@ function discard(game: Game) {
 				game.discard[suit] = card
 				game.piles[column].shift()
 				game.remaining--
+				game.solution.push({
+					type: 'discardPile',
+					cards: [card],
+					from: column,
+					to: suit,
+				})
 				discarded = true
 			}
 		}

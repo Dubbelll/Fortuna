@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { makeDiscard, makeGame, makePiles } from '$lib/play'
+	import { makeDiscard, makeGame, makePiles, type Card } from '$lib/play'
 	import type { Move } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import Board from './_components/Board.svelte'
 	import Discard from './_components/Discard.svelte'
 
-	let discard = $state(makeDiscard())
 	let piles = $state(makePiles())
+	let discard = $state(makeDiscard())
+	let stash: Card | undefined = $state(undefined)
 	let solution: Move[] = $state([])
 	let solving = $state(false)
 
@@ -40,16 +41,36 @@
 	}
 
 	function next() {
-		// const move = solution.shift()
-		// if (!move) return
-		// const card = piles[move.from].shift()
-		// if (!card) return
-		// if (move.type === 'move') {
-		// 	piles[move.to] = [card, ...piles[move.to]]
-		// }
-		// if (move.type === 'discard') {
-		// 	discard[move.to] = card
-		// }
+		const move = solution.shift()
+		if (!move) return
+
+		if (move.type === 'pile') {
+			for (let i = 0; i < move.cards.length; i++) {
+				const card = piles[move.from].shift()
+				if (!card) return
+				piles[move.to] = [card, ...piles[move.to]]
+			}
+		}
+		if (move.type === 'stash') {
+			const card = piles[move.from].shift()
+			if (!card) return
+			stash = card
+		}
+		if (move.type === 'unstash') {
+			if (!stash) return
+			piles[move.to] = [stash, ...piles[move.to]]
+			stash = undefined
+		}
+		if (move.type === 'discardPile') {
+			const card = piles[move.from].shift()
+			if (!card) return
+			discard[move.to] = card
+		}
+		if (move.type === 'discardStash') {
+			if (!stash) return
+			discard[move.to] = stash
+			stash = undefined
+		}
 	}
 </script>
 
@@ -59,7 +80,7 @@
 		<button onclick={reset} disabled={solving}>RESET</button>
 		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
 	</div>
-	<Discard {discard} />
+	<Discard {discard} {stash} />
 	<Board {piles} />
 </div>
 
