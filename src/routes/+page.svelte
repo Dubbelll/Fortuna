@@ -62,10 +62,10 @@
 			piles[move.to] = [stash.pop()!, ...piles[move.to]]
 		}
 		if (move.type === 'discardPile') {
-			discard[move.to] = piles[move.from].shift()
+			discard[move.to].push(piles[move.from].shift()!)
 		}
 		if (move.type === 'discardStash') {
-			discard[move.to] = stash.pop()
+			discard[move.to].push(stash.pop()!)
 		}
 	}
 

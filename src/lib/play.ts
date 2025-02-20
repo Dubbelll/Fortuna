@@ -20,8 +20,8 @@ function makeShuffledDeck(): number[] {
 	return shuffled
 }
 
-export function makeDiscard(): (number | undefined)[] {
-	return [undefined, undefined, 201, 301, 401, 501]
+export function makeDiscard(): number[][] {
+	return [[], [], [201], [301], [401], [501]]
 }
 
 export function makeFace(card: number | undefined): string {
@@ -56,7 +56,7 @@ export const solvablePiles = [
 	[204, 310, 309, 312, 213, 104, 507],
 	[101, 511, 203, 508, 313, 407, 120],
 ]
-export const solvableDiscard = [undefined, undefined, 201, 301, 401, 501]
+export const solvableDiscard = [[], [], [201], [301], [401], [501]]
 export const solvableGame: Game = {
 	key: '114212302115106X51010210520410199122201301401501X',
 	piles: [
