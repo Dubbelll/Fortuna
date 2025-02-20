@@ -254,61 +254,6 @@ export function makeKey(game: Game): string {
 	return key + (game.stash[0] || 'X')
 }
 
-function makeGame(piles: Pile[]): Game {
-	const game: Game = {
-		key: '',
-		piles,
-		discard: [99, 122, 201, 301, 401, 501],
-		stash: [],
-		remaining: 70,
-		iteration: 0,
-		solution: [],
-		by: '',
-	}
-	game.key = makeKey(game)
-	return game
-}
-
-// parsing
-export function parse(input: string): Game {
-	const piles = input.split('\n').map((column) => {
-		if (column === 'x') return []
-
-		return column.split(' ').map((element) => {
-			const suit = parseSuit(element.substring(0, 1))
-			const rank = parseRank(element.substring(1))
-
-			return suit + rank
-		})
-	})
-	const cards = piles.reduce((cards, pile) => cards.concat(pile), [])
-	const isValid = cards.length === deck.length && deck.every((card) => cards.includes(card))
-	if (!isValid) throw 'invalid input'
-
-	return makeGame(piles)
-}
-
-function parseSuit(suit: string): number {
-	switch (suit) {
-		case 't':
-			return 100
-		case 'r':
-			return 200
-		case 'g':
-			return 300
-		case 'b':
-			return 400
-		case 'y':
-			return 500
-		default:
-			return 0
-	}
-}
-
-function parseRank(rank: string): number {
-	return parseInt(rank)
-}
-
 // convenience
 function moveToString(move: Move, game: Game): string {
 	if (move.type === 'stash') return `${move.cards[0]}->STASH`
