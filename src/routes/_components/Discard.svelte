@@ -8,7 +8,7 @@
 		animateIn,
 	}: {
 		discard: (number | undefined)[]
-		stash: number | undefined
+		stash: number[]
 		animateIn: (node: HTMLElement) => TransitionConfig
 	} = $props()
 </script>
@@ -21,7 +21,9 @@
 		<Card card={discard[1]} {animateIn} />
 	</div>
 	<div id="stash" class="card" style:grid-column="5">
-		<Card card={stash} {animateIn} />
+		{#each stash as card (card)}
+			<Card {card} {animateIn} />
+		{/each}
 	</div>
 	<div id="discard2" class="card" style:grid-column="8">
 		<Card card={discard[2]} {animateIn} />

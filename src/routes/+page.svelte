@@ -9,7 +9,7 @@
 
 	let piles = $state(solvablePiles)
 	let discard = $state(solvableDiscard)
-	let stash: number | undefined = $state(undefined)
+	let stash: number[] = $state([])
 	let solution: Move[] = $state([])
 	let solving = $state(false)
 
@@ -56,18 +56,16 @@
 			}
 		}
 		if (move.type === 'stash') {
-			stash = piles[move.from].shift()
+			stash.push(piles[move.from].shift()!)
 		}
 		if (move.type === 'unstash') {
-			piles[move.to] = [stash!, ...piles[move.to]]
-			stash = undefined
+			piles[move.to] = [stash.pop()!, ...piles[move.to]]
 		}
 		if (move.type === 'discardPile') {
 			discard[move.to] = piles[move.from].shift()
 		}
 		if (move.type === 'discardStash') {
-			discard[move.to] = stash
-			stash = undefined
+			discard[move.to] = stash.pop()
 		}
 	}
 
