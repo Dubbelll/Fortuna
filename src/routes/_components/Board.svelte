@@ -1,17 +1,23 @@
 <script lang="ts">
-	import type { Card } from '$lib/play'
-	import PlayingCard from './PlayingCard.svelte'
+	import type { TransitionConfig } from 'svelte/transition'
+	import Card from './Card.svelte'
 
-	let { piles }: { piles: Card[][] } = $props()
-	let columns = $derived(piles.map((pile) => [...pile].reverse()))
+	let {
+		piles,
+		animateIn,
+	}: {
+		piles: number[][]
+		animateIn: (node: HTMLElement) => TransitionConfig
+	} = $props()
+	let reversedPiles = $derived(piles.map((pile) => [...pile].reverse()))
 </script>
 
 <div class="board">
-	{#each columns as column}
-		<div class="pile">
-			{#each column as card, index (card.id)}
-				<div class="card" style:margin-top={`${index * 24}px`}>
-					<PlayingCard {card} />
+	{#each reversedPiles as pile, pileIndex}
+		<div id={`pile${pileIndex}`} class="pile">
+			{#each pile as card, cardIndex (card)}
+				<div class="card" style:margin-top={`${cardIndex * 24}px`}>
+					<Card {card} {animateIn} />
 				</div>
 			{/each}
 		</div>

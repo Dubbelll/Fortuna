@@ -11,10 +11,8 @@ export interface Game {
 	remaining: number
 	// cost (g) in A*
 	iteration: number
-	// previous game
+	// first move last
 	solution: Move[]
-	// move that made this game
-	by: string
 }
 
 type Pile = number[]
@@ -27,13 +25,6 @@ export interface Move {
 	from: number
 	to: number
 }
-
-const deck = [
-	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
-	119, 120, 121, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 302, 303, 304, 305,
-	306, 307, 308, 309, 310, 311, 312, 313, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
-	413, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513,
-]
 
 // worker
 self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
@@ -171,7 +162,6 @@ function makeNextGame(move: Move, game: Game): Game {
 		remaining: game.remaining,
 		iteration: game.iteration + 1,
 		solution: game.solution.concat(move),
-		by: moveToString(move, game),
 	}
 	play(move, next)
 	discard(next)

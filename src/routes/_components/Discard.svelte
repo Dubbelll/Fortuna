@@ -1,33 +1,39 @@
 <script lang="ts">
-	import type { Card } from '$lib/play'
-	import PlayingCard from './PlayingCard.svelte'
+	import type { TransitionConfig } from 'svelte/transition'
+	import Card from './Card.svelte'
 
-	let { discard, stash }: { discard: Card[]; stash: Card | undefined } = $props()
+	let {
+		discard,
+		stash,
+		animateIn,
+	}: {
+		discard: (number | undefined)[]
+		stash: number | undefined
+		animateIn: (node: HTMLElement) => TransitionConfig
+	} = $props()
 </script>
 
 <div class="discard">
-	<div class="card" style:grid-column="1">
-		<PlayingCard card={discard[0]} />
+	<div id="discard0" class="card" style:grid-column="1">
+		<Card card={discard[0]} {animateIn} />
 	</div>
-	<div class="card" style:grid-column="2">
-		<PlayingCard card={discard[1]} />
+	<div id="discard1" class="card" style:grid-column="2">
+		<Card card={discard[1]} {animateIn} />
 	</div>
-	{#if stash}
-		<div class="card" style:grid-column="5">
-			<PlayingCard card={stash} />
-		</div>
-	{/if}
-	<div class="card" style:grid-column="8">
-		<PlayingCard card={discard[2]} />
+	<div id="stash" class="card" style:grid-column="5">
+		<Card card={stash} {animateIn} />
 	</div>
-	<div class="card" style:grid-column="9">
-		<PlayingCard card={discard[3]} />
+	<div id="discard2" class="card" style:grid-column="8">
+		<Card card={discard[2]} {animateIn} />
 	</div>
-	<div class="card" style:grid-column="10">
-		<PlayingCard card={discard[4]} />
+	<div id="discard3" class="card" style:grid-column="9">
+		<Card card={discard[3]} {animateIn} />
 	</div>
-	<div class="card" style:grid-column="11">
-		<PlayingCard card={discard[5]} />
+	<div id="discard4" class="card" style:grid-column="10">
+		<Card card={discard[4]} {animateIn} />
+	</div>
+	<div id="discard5" class="card" style:grid-column="11">
+		<Card card={discard[5]} {animateIn} />
 	</div>
 </div>
 

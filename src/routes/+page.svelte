@@ -1,18 +1,21 @@
 <script lang="ts">
-	import { makeDiscard, makeGame, makePiles, type Card } from '$lib/play'
+	import { makeDiscard, makePiles, solvableDiscard, solvableGame, solvablePiles } from '$lib/play'
 	import type { Move } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
+	import type { TransitionConfig } from 'svelte/transition'
 	import Board from './_components/Board.svelte'
 	import Discard from './_components/Discard.svelte'
 
-	let piles = $state(makePiles())
-	let discard = $state(makeDiscard())
-	let stash: Card | undefined = $state(undefined)
+	let piles = $state(solvablePiles)
+	let discard = $state(solvableDiscard)
+	let stash: number | undefined = $state(undefined)
 	let solution: Move[] = $state([])
 	let solving = $state(false)
 
 	let solver: Worker
+	let animateInById: Record<string, DOMRect | undefined> = {}
+
 	onMount(() => {
 		solver = new Solver()
 		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
@@ -36,14 +39,15 @@
 
 	function start() {
 		solving = true
-		const game = makeGame($state.snapshot(piles))
-		solver.postMessage({ code: 'start', payload: game })
+		//const game = makeGame($state.snapshot(piles))
+		solver.postMessage({ code: 'start', payload: solvableGame })
 	}
 
 	function next() {
 		const move = solution.shift()
 		if (!move) return
 
+		queueAnimations(move)
 		if (move.type === 'pile') {
 			for (let i = 0; i < move.cards.length; i++) {
 				const card = piles[move.from].shift()
@@ -52,24 +56,58 @@
 			}
 		}
 		if (move.type === 'stash') {
-			const card = piles[move.from].shift()
-			if (!card) return
-			stash = card
+			stash = piles[move.from].shift()
 		}
 		if (move.type === 'unstash') {
-			if (!stash) return
-			piles[move.to] = [stash, ...piles[move.to]]
+			piles[move.to] = [stash!, ...piles[move.to]]
 			stash = undefined
 		}
 		if (move.type === 'discardPile') {
-			const card = piles[move.from].shift()
-			if (!card) return
-			discard[move.to] = card
+			discard[move.to] = piles[move.from].shift()
 		}
 		if (move.type === 'discardStash') {
-			if (!stash) return
 			discard[move.to] = stash
 			stash = undefined
+		}
+	}
+
+	function queueAnimations(move: Move) {
+		if (move.type === 'pile') {
+			for (let i = 0; i < move.cards.length; i++) {
+				const id = `card${move.cards[i]}`
+				animateInById[id] = document.getElementById(id)?.getBoundingClientRect()
+			}
+		} else {
+			let id = ''
+			if (move.type === 'stash') {
+				id = `card${piles[move.from][0]}`
+			}
+			if (move.type === 'unstash') {
+				id = `card${stash}`
+			}
+			if (move.type === 'discardPile') {
+				id = `card${piles[move.from][0]}`
+			}
+			if (move.type === 'discardStash') {
+				id = `card${stash}`
+			}
+
+			animateInById[id] = document.getElementById(id)?.getBoundingClientRect()
+		}
+	}
+
+	function animateIn(node: HTMLElement): TransitionConfig {
+		const offset = animateInById[node.id]
+		if (!offset) return {}
+		const bounds = node.getBoundingClientRect()
+
+		// start from offset (where card came from) and then back to bounds (where card is now)
+		const x = offset.x - bounds.x
+		const y = offset.y - bounds.y
+		return {
+			delay: 0,
+			duration: 320,
+			css: (t: number, u: number) => `transform: translate(${x * u}px,${y * u}px)`,
 		}
 	}
 </script>
@@ -80,8 +118,8 @@
 		<button onclick={reset} disabled={solving}>RESET</button>
 		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
 	</div>
-	<Discard {discard} {stash} />
-	<Board {piles} />
+	<Discard {discard} {stash} {animateIn} />
+	<Board {piles} {animateIn} />
 </div>
 
 <style>

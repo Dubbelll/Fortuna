@@ -1,41 +1,8 @@
 import type { Game } from './solve'
 
-export interface Card {
-	id: number
-	face: string
-}
-
-type Column = Card[]
-
-export function makeGame(columns: Column[]): Game {
-	return {
-		key:
-			columns.reduce((key, column) => key + (column[0]?.id || 'X'), '') +
-			'99122201301401501X',
-		piles: columns.map((column) => column.map((card) => card.id)),
-		discard: [99, 122, 201, 301, 401, 501],
-		stash: [],
-		remaining: 70,
-		iteration: 0,
-		solution: [],
-		by: '',
-	}
-}
-
-export function makeDiscard(): Card[] {
-	return [
-		{ id: 99, face: 'T-1' },
-		{ id: 122, face: 'T122' },
-		{ id: 201, face: 'R1' },
-		{ id: 301, face: 'G1' },
-		{ id: 401, face: 'B1' },
-		{ id: 501, face: 'Y1' },
-	]
-}
-
-export function makePiles(): Column[] {
+export function makePiles(): number[][] {
 	const deck = makeShuffledDeck()
-	const piles: Card[][] = [[], [], [], [], [], [], [], [], [], []]
+	const piles: number[][] = [[], [], [], [], [], [], [], [], [], []]
 	for (let column = 0; column < 10; column++) {
 		for (let depth = 0; depth < 7; depth++) {
 			piles[column][depth] = deck[column * 7 + depth]
@@ -44,7 +11,7 @@ export function makePiles(): Column[] {
 	return [...piles.slice(0, 5), [], ...piles.slice(5)]
 }
 
-function makeShuffledDeck(): Card[] {
+function makeShuffledDeck(): number[] {
 	let shuffled = [...deck]
 	for (let i = shuffled.length - 1; i >= 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1))
@@ -53,75 +20,61 @@ function makeShuffledDeck(): Card[] {
 	return shuffled
 }
 
-const deck: Card[] = [
-	{ id: 100, face: 'T0' },
-	{ id: 101, face: 'T1' },
-	{ id: 102, face: 'T2' },
-	{ id: 103, face: 'T3' },
-	{ id: 104, face: 'T4' },
-	{ id: 105, face: 'T5' },
-	{ id: 106, face: 'T6' },
-	{ id: 107, face: 'T7' },
-	{ id: 108, face: 'T8' },
-	{ id: 109, face: 'T9' },
-	{ id: 110, face: 'T10' },
-	{ id: 111, face: 'T11' },
-	{ id: 112, face: 'T12' },
-	{ id: 113, face: 'T13' },
-	{ id: 114, face: 'T14' },
-	{ id: 115, face: 'T15' },
-	{ id: 116, face: 'T16' },
-	{ id: 117, face: 'T17' },
-	{ id: 118, face: 'T18' },
-	{ id: 119, face: 'T19' },
-	{ id: 120, face: 'T20' },
-	{ id: 121, face: 'T21' },
-	{ id: 202, face: 'R2' },
-	{ id: 203, face: 'R3' },
-	{ id: 204, face: 'R4' },
-	{ id: 205, face: 'R5' },
-	{ id: 206, face: 'R6' },
-	{ id: 207, face: 'R7' },
-	{ id: 208, face: 'R8' },
-	{ id: 209, face: 'R9' },
-	{ id: 210, face: 'R10' },
-	{ id: 211, face: 'R11' },
-	{ id: 212, face: 'R12' },
-	{ id: 213, face: 'R13' },
-	{ id: 302, face: 'G2' },
-	{ id: 303, face: 'G3' },
-	{ id: 304, face: 'G4' },
-	{ id: 305, face: 'G5' },
-	{ id: 306, face: 'G6' },
-	{ id: 307, face: 'G7' },
-	{ id: 308, face: 'G8' },
-	{ id: 309, face: 'G9' },
-	{ id: 310, face: 'G10' },
-	{ id: 311, face: 'G11' },
-	{ id: 312, face: 'G12' },
-	{ id: 313, face: 'G13' },
-	{ id: 402, face: 'B2' },
-	{ id: 403, face: 'B3' },
-	{ id: 404, face: 'B4' },
-	{ id: 405, face: 'B5' },
-	{ id: 406, face: 'B6' },
-	{ id: 407, face: 'B7' },
-	{ id: 408, face: 'B8' },
-	{ id: 409, face: 'B9' },
-	{ id: 410, face: 'B10' },
-	{ id: 411, face: 'B11' },
-	{ id: 412, face: 'B12' },
-	{ id: 413, face: 'B13' },
-	{ id: 502, face: 'Y2' },
-	{ id: 503, face: 'Y3' },
-	{ id: 504, face: 'Y4' },
-	{ id: 505, face: 'Y5' },
-	{ id: 506, face: 'Y6' },
-	{ id: 507, face: 'Y7' },
-	{ id: 508, face: 'Y8' },
-	{ id: 509, face: 'Y9' },
-	{ id: 510, face: 'Y10' },
-	{ id: 511, face: 'Y11' },
-	{ id: 512, face: 'Y12' },
-	{ id: 513, face: 'Y13' },
+export function makeDiscard(): (number | undefined)[] {
+	return [undefined, undefined, 201, 301, 401, 501]
+}
+
+export function makeFace(card: number | undefined): string {
+	if (!card) return ''
+
+	if (card >= 99 && card < 200) return 'T' + (card - 100)
+	if (card >= 200 && card < 300) return 'R' + (card - 200)
+	if (card >= 300 && card < 400) return 'G' + (card - 300)
+	if (card >= 400 && card < 500) return 'B' + (card - 400)
+	if (card >= 500 && card < 600) return 'Y' + (card - 500)
+
+	return ''
+}
+
+const deck = [
+	100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118,
+	119, 120, 121, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 302, 303, 304, 305,
+	306, 307, 308, 309, 310, 311, 312, 313, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412,
+	413, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513,
 ]
+
+export const solvablePiles = [
+	[114, 406, 306, 410, 107, 210, 413],
+	[212, 100, 208, 408, 505, 411, 502],
+	[302, 209, 205, 121, 110, 206, 303],
+	[115, 113, 307, 308, 118, 117, 305],
+	[106, 207, 409, 503, 304, 311, 108],
+	[],
+	[510, 412, 211, 402, 504, 202, 103],
+	[102, 509, 111, 116, 112, 512, 109],
+	[105, 119, 506, 404, 405, 513, 403],
+	[204, 310, 309, 312, 213, 104, 507],
+	[101, 511, 203, 508, 313, 407, 120],
+]
+export const solvableDiscard = [undefined, undefined, 201, 301, 401, 501]
+export const solvableGame: Game = {
+	key: '114212302115106X51010210520410199122201301401501X',
+	piles: [
+		[114, 406, 306, 410, 107, 210, 413],
+		[212, 100, 208, 408, 505, 411, 502],
+		[302, 209, 205, 121, 110, 206, 303],
+		[115, 113, 307, 308, 118, 117, 305],
+		[106, 207, 409, 503, 304, 311, 108],
+		[],
+		[510, 412, 211, 402, 504, 202, 103],
+		[102, 509, 111, 116, 112, 512, 109],
+		[105, 119, 506, 404, 405, 513, 403],
+		[204, 310, 309, 312, 213, 104, 507],
+		[101, 511, 203, 508, 313, 407, 120],
+	],
+	discard: [99, 122, 201, 301, 401, 501],
+	stash: [],
+	remaining: 70,
+	iteration: 0,
+	solution: [],
+}
