@@ -7,11 +7,11 @@
 	import Board from './_components/Board.svelte'
 	import Discard from './_components/Discard.svelte'
 
+	let mode: 'idle' | 'solving' | 'playing' | 'paused' = $state('idle')
 	let piles = $state(solvablePiles)
 	let discard = $state(solvableDiscard)
 	let stash: number[] = $state([])
 	let solution: Move[] = $state([])
-	let solving = $state(false)
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
@@ -20,27 +20,38 @@
 		solver = new Solver()
 		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 			if (event.data.code === 'done') {
-				solving = false
 				solution = event.data.payload
+				play()
 			}
 			if (event.data.code === 'fail') {
-				solving = false
+				mode = 'idle'
 				solution = []
 			}
 		}
 	})
 
 	function reset() {
+		mode = 'idle'
 		discard = makeDiscard()
 		piles = makePiles()
 		solution = []
-		solving = false
 	}
 
 	function start() {
-		solving = true
+		mode = 'solving'
 		//const game = makeGame($state.snapshot(piles))
 		solver.postMessage({ code: 'start', payload: solvableGame })
+	}
+
+	function play() {
+		mode = 'playing'
+		let interval = setInterval(() => {
+			if (solution.length > 0) next()
+			else {
+				clearInterval(interval)
+				mode = 'idle'
+			}
+		}, 320)
 	}
 
 	function next() {
@@ -112,9 +123,8 @@
 
 <div class="container">
 	<div class="controls">
-		<button onclick={start} disabled={solving}>SOLVE</button>
-		<button onclick={reset} disabled={solving}>RESET</button>
-		<button onclick={next} disabled={solution.length === 0}>NEXT</button>
+		<button onclick={start} disabled={mode !== 'idle'}>SOLVE</button>
+		<button onclick={reset} disabled={mode !== 'idle'}>SHUFFLE</button>
 	</div>
 	<Discard {discard} {stash} {animateIn} />
 	<Board {piles} {animateIn} />
