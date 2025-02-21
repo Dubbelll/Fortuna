@@ -19,6 +19,10 @@
 				<div class="card" style:margin-top={`${cardIndex * 24}px`}>
 					<Card {card} {animateIn} />
 				</div>
+			{:else}
+				<div class="card">
+					<Card card={undefined} {animateIn} />
+				</div>
 			{/each}
 		</div>
 	{/each}
