@@ -9,7 +9,7 @@ export function makePiles(): number[][] {
 		}
 	}
 
-	// ensure no cards can be immediatly discarded
+	// ensure no cards can be immediately discarded
 	// this way the board always has 70 cards like the real game
 	const discardable = [100, 121, 202, 302, 402, 502]
 	for (let column = 0; column < piles.length; column++) {

@@ -16,7 +16,7 @@
 <div class="discard">
 	{@render pile('discard0', discard[0], 1)}
 	{@render pile('discard1', discard[1], 2)}
-	{@render pile('stash', stash, 5)}
+	{@render pile('stash', stash, 7)}
 	{@render pile('discard2', discard[2], 8)}
 	{@render pile('discard3', discard[3], 9)}
 	{@render pile('discard4', discard[4], 10)}

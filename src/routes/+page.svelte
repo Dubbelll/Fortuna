@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { makeDiscard, makePiles, solvableDiscard, solvableGame, solvablePiles } from '$lib/play'
+	import { makeDiscard, makePiles, solvableDiscard, solvablePiles } from '$lib/play'
 	import type { Move } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
@@ -35,12 +35,19 @@
 		discard = makeDiscard()
 		piles = makePiles()
 		solution = []
+		animateInById = {}
 	}
 
 	function start() {
 		mode = 'solving'
-		//const game = makeGame($state.snapshot(piles))
-		solver.postMessage({ code: 'start', payload: solvableGame })
+		solver.postMessage({
+			code: 'start',
+			payload: {
+				piles: $state.snapshot(piles),
+				discard: $state.snapshot(discard),
+				stash: $state.snapshot(stash),
+			},
+		})
 	}
 
 	function play() {

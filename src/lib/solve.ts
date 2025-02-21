@@ -1,10 +1,10 @@
 export interface Game {
-	// discard + top cards + stash
+	// top cards + discard + stash
 	key: string
 	// top card first
 	piles: Pile[]
 	// tarotLow, tarotHigh, red, green, blue, yellow
-	discard: Discard
+	discard: number[]
 	// card on top of discard
 	stash: number[]
 	// part of heuristic (h) in A*
@@ -17,8 +17,6 @@ export interface Game {
 
 type Pile = number[]
 
-type Discard = [number, number, number, number, number, number]
-
 export interface Move {
 	type: 'pile' | 'stash' | 'unstash' | 'discardPile' | 'discardStash'
 	cards: number[]
@@ -29,7 +27,8 @@ export interface Move {
 // worker
 self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 	if (event.data.code === 'start') {
-		const solution = astar(event.data.payload)
+		const game = makeGame(event.data.payload)
+		const solution = astar(game)
 		if (solution) self.postMessage({ code: 'done', payload: solution })
 		else self.postMessage({ code: 'fail', payload: undefined })
 	}
@@ -37,9 +36,6 @@ self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
 
 // playing
 function astar(start: Game): Move[] | undefined {
-	// game can have possible discards at the start
-	discard(start)
-
 	let open: Game[] = [start]
 	let closed: Game[] = []
 
@@ -148,6 +144,8 @@ function discard(game: Game) {
 
 // constructing
 function makeNextGames(game: Game): Game[] {
+	if (!isGameProgressing(game)) return []
+
 	const moves = makePossibleMoves(game)
 
 	return moves.map((move) => makeNextGame(move, game))
@@ -256,7 +254,32 @@ export function makeKey(game: Game): string {
 	return key + (game.stash[0] || 'X')
 }
 
+function makeGame(payload: { piles: number[][]; discard: number[][]; stash: number[] }): Game {
+	const tarotDiscardDefaults = [99, 122]
+	const game: Game = {
+		key: '',
+		piles: payload.piles,
+		discard: payload.discard.map((suit, i) => suit[suit.length - 1] || tarotDiscardDefaults[i]),
+		stash: payload.stash,
+		remaining: payload.piles.reduce((sum, pile) => sum + pile.length, 0),
+		iteration: 0,
+		solution: [],
+	}
+	game.key = makeKey(game)
+	return game
+}
+
 // convenience
+function isGameProgressing(game: Game): boolean {
+	const n = 10
+	if (game.solution.length < n) return true
+
+	// if we have discarded in the last n moves we are progressing
+	return game.solution
+		.slice(-n)
+		.some((move) => move.type === 'discardPile' || move.type === 'discardStash')
+}
+
 function moveToString(move: Move, game: Game): string {
 	if (move.type === 'stash') return `${move.cards[0]}->STASH`
 	if (move.type === 'unstash') return `STASH${move.cards[0]}->${game.piles[move.to][0] || 'X'}`
