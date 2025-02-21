@@ -8,6 +8,19 @@ export function makePiles(): number[][] {
 			piles[column][depth] = deck[column * 7 + depth]
 		}
 	}
+
+	// ensure no cards can be immediatly discarded
+	// this way the board always has 70 cards like the real game
+	const discardable = [100, 121, 202, 302, 402, 502]
+	for (let column = 0; column < piles.length; column++) {
+		const pile = piles[column]
+		if (!discardable.includes(pile[0])) continue
+
+		const target = pile.findIndex((card) => !discardable.includes(card))
+		if (target === -1) continue
+		;[pile[0], pile[target]] = [pile[target], pile[0]]
+	}
+
 	return [...piles.slice(0, 5), [], ...piles.slice(5)]
 }
 
@@ -17,6 +30,7 @@ function makeShuffledDeck(): number[] {
 		const j = Math.floor(Math.random() * (i + 1))
 		;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
 	}
+
 	return shuffled
 }
 

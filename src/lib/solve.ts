@@ -194,7 +194,7 @@ function makePossibleMoves(game: Game): Move[] {
 				else break
 			}
 			// prevent moves that just move stacks between piles
-			// unless the bottom card (will become top) can be discarded
+			// unless the last card (will become first) can be discarded
 			if (
 				game.piles[from].length - cards.length !== 0 ||
 				game.discard.findIndex(
