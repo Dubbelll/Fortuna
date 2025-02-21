@@ -15,13 +15,12 @@
 <div class="board">
 	{#each reversedPiles as pile, pileIndex}
 		<div id={`pile${pileIndex}`} class="pile">
+			<div class="card">
+				<Card card={undefined} {animateIn} />
+			</div>
 			{#each pile as card, cardIndex (card)}
 				<div class="card" style:margin-top={`${cardIndex * 24}px`}>
 					<Card {card} {animateIn} />
-				</div>
-			{:else}
-				<div class="card">
-					<Card card={undefined} {animateIn} />
 				</div>
 			{/each}
 		</div>

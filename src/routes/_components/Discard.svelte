@@ -14,30 +14,23 @@
 </script>
 
 <div class="discard">
-	{@render discardPile(0, 1)}
-	{@render discardPile(1, 2)}
-	<div id="stash" class="pile" style:grid-column="5">
-		{#each stash as card (card)}
-			<Card {card} {animateIn} />
-		{:else}
-			<Card card={undefined} {animateIn} />
-		{/each}
-	</div>
-	{@render discardPile(2, 8)}
-	{@render discardPile(3, 9)}
-	{@render discardPile(4, 10)}
-	{@render discardPile(5, 11)}
+	{@render pile('discard0', discard[0], 1)}
+	{@render pile('discard1', discard[1], 2)}
+	{@render pile('stash', stash, 5)}
+	{@render pile('discard2', discard[2], 8)}
+	{@render pile('discard3', discard[3], 9)}
+	{@render pile('discard4', discard[4], 10)}
+	{@render pile('discard5', discard[5], 11)}
 </div>
 
-{#snippet discardPile(discardIndex: number, gridColumn: number)}
-	<div id={`discard${discardIndex}`} class="pile" style:grid-column={gridColumn}>
-		{#each discard[discardIndex] as card (card)}
+{#snippet pile(id: string, pile: number[], column: number)}
+	<div {id} class="pile" style:grid-column={column}>
+		<div class="card">
+			<Card card={undefined} {animateIn} />
+		</div>
+		{#each pile as card (card)}
 			<div class="card">
 				<Card {card} {animateIn} />
-			</div>
-		{:else}
-			<div class="card">
-				<Card card={undefined} {animateIn} />
 			</div>
 		{/each}
 	</div>
@@ -51,15 +44,11 @@
 	}
 
 	.pile {
-		position: relative;
+		display: grid;
 	}
 
 	.card {
-		&:nth-child(n + 2) {
-			position: absolute;
-			top: 0;
-			width: 100%;
-			z-index: 0;
-		}
+		grid-column: 1;
+		grid-row: 1;
 	}
 </style>
