@@ -271,7 +271,7 @@ function makeGame(payload: { piles: number[][]; discard: number[][]; stash: numb
 
 // convenience
 function isGameProgressing(game: Game): boolean {
-	const n = 10
+	const n = 7
 	if (game.solution.length < n) return true
 
 	// if we have discarded in the last n moves we are progressing
