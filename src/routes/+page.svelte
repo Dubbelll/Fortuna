@@ -137,6 +137,10 @@
 	<Board {piles} {animateIn} />
 </div>
 
+<svelte:head>
+	<title>Fortuna</title>
+</svelte:head>
+
 <style>
 	.container {
 		display: grid;
