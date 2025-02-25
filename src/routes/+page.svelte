@@ -132,12 +132,7 @@
 <div class="container">
 	<div class="game">
 		<Discard {discard} {stash} {mode} {solve} {shuffle} {animateIn} />
-		<Board {piles} {animateIn} />
-		{#if mode === 'unsolvable'}
-			<div class="unsolvable">
-				<p>UNSOLVABLE</p>
-			</div>
-		{/if}
+		<Board {piles} {mode} {animateIn} />
 	</div>
 </div>
 
@@ -153,34 +148,8 @@
 	}
 
 	.game {
-		position: relative;
 		display: grid;
 		gap: 8px;
 		overflow-x: auto;
-	}
-
-	.unsolvable {
-		position: absolute;
-		top: 0;
-		left: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(
-			to bottom right,
-			transparent calc(50% - 1px),
-			red 0,
-			red calc(50% + 1px),
-			transparent 0
-		);
-		border: 2px solid red;
-
-		& > p {
-			padding: 0 8px;
-			background-color: white;
-			border: 2px solid red;
-		}
 	}
 </style>
