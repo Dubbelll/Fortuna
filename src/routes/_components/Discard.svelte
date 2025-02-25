@@ -67,8 +67,8 @@
 	.controls {
 		grid-column: 3/7;
 		display: grid;
-		justify-content: end;
-		align-content: end;
+		justify-content: center;
+		align-content: center;
 		gap: 8px;
 	}
 
