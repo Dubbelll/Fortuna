@@ -41,11 +41,11 @@ export function makeDiscard(): number[][] {
 export function makeFace(card: number | undefined): string {
 	if (!card) return ''
 
-	if (card >= 99 && card < 200) return 'T' + (card - 100)
-	if (card >= 200 && card < 300) return 'R' + (card - 200)
-	if (card >= 300 && card < 400) return 'G' + (card - 300)
-	if (card >= 400 && card < 500) return 'B' + (card - 400)
-	if (card >= 500 && card < 600) return 'Y' + (card - 500)
+	if (card >= 99 && card < 200) return '' + (card - 100)
+	if (card >= 200 && card < 300) return '' + (card - 200)
+	if (card >= 300 && card < 400) return '' + (card - 300)
+	if (card >= 400 && card < 500) return '' + (card - 400)
+	if (card >= 500 && card < 600) return '' + (card - 500)
 
 	return ''
 }

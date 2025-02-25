@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { makeDiscard, makePiles, solvableDiscard, solvablePiles } from '$lib/play'
-	import type { Move } from '$lib/solve'
+	import type { Move, SolvedMessage, SolveMessage, UnsolvableMessage } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import type { TransitionConfig } from 'svelte/transition'
 	import Board from './_components/Board.svelte'
 	import Discard from './_components/Discard.svelte'
 
-	let mode: 'idle' | 'solving' | 'playing' | 'paused' = $state('idle')
+	let mode: 'idle' | 'solving' | 'playing' | 'paused' | 'unsolvable' = $state('idle')
 	let piles = $state(solvablePiles)
 	let discard = $state(solvableDiscard)
 	let stash: number[] = $state([])
@@ -18,19 +18,19 @@
 
 	onMount(() => {
 		solver = new Solver()
-		solver.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
-			if (event.data.code === 'done') {
+		solver.onmessage = (event: MessageEvent<SolvedMessage | UnsolvableMessage>) => {
+			if (event.data.key === 'solved') {
 				solution = event.data.payload
 				play()
 			}
-			if (event.data.code === 'fail') {
-				mode = 'idle'
+			if (event.data.key === 'unsolvable') {
+				mode = 'unsolvable'
 				solution = []
 			}
 		}
 	})
 
-	function reset() {
+	function shuffle() {
 		mode = 'idle'
 		discard = makeDiscard()
 		piles = makePiles()
@@ -38,16 +38,17 @@
 		animateInById = {}
 	}
 
-	function start() {
+	function solve() {
 		mode = 'solving'
-		solver.postMessage({
-			code: 'start',
+		const message: SolveMessage = {
+			key: 'solve',
 			payload: {
 				piles: $state.snapshot(piles),
 				discard: $state.snapshot(discard),
 				stash: $state.snapshot(stash),
 			},
-		})
+		}
+		solver.postMessage(message)
 	}
 
 	function play() {
@@ -130,11 +131,20 @@
 
 <div class="container">
 	<div class="controls">
-		<button onclick={start} disabled={mode !== 'idle'}>SOLVE</button>
-		<button onclick={reset} disabled={mode !== 'idle'}>SHUFFLE</button>
+		<button onclick={solve} disabled={mode !== 'idle'}>SOLVE</button>
+		<button onclick={shuffle} disabled={mode !== 'idle' && mode !== 'unsolvable'}>
+			SHUFFLE
+		</button>
 	</div>
-	<Discard {discard} {stash} {animateIn} />
-	<Board {piles} {animateIn} />
+	<div class="game">
+		<Discard {discard} {stash} {animateIn} />
+		<Board {piles} {animateIn} />
+		{#if mode === 'unsolvable'}
+			<div class="unsolvable">
+				<p>UNSOLVABLE</p>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <svelte:head>
@@ -147,6 +157,7 @@
 		gap: 8px;
 		padding: 8px;
 	}
+
 	.controls {
 		display: grid;
 		grid-auto-flow: column;
@@ -158,5 +169,36 @@
 		padding: 0 8px;
 		border: 2px solid black;
 		background-color: white;
+	}
+
+	.game {
+		position: relative;
+		display: grid;
+		gap: 8px;
+	}
+
+	.unsolvable {
+		position: absolute;
+		top: 0;
+		left: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			to bottom right,
+			transparent calc(50% - 1px),
+			red 0,
+			red calc(50% + 1px),
+			transparent 0
+		);
+		border: 2px solid red;
+
+		& > p {
+			padding: 0 8px;
+			background-color: white;
+			border: 2px solid red;
+		}
 	}
 </style>

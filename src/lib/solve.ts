@@ -24,13 +24,34 @@ export interface Move {
 	to: number
 }
 
+export interface SolveMessage {
+	key: 'solve'
+	payload: { piles: number[][]; discard: number[][]; stash: number[] }
+}
+
+export interface SolvedMessage {
+	key: 'solved'
+	payload: Move[]
+}
+
+export interface UnsolvableMessage {
+	key: 'unsolvable'
+	payload: undefined
+}
+
 // worker
-self.onmessage = (event: MessageEvent<{ code: string; payload: any }>) => {
-	if (event.data.code === 'start') {
+self.onmessage = (event: MessageEvent<SolveMessage>) => {
+	if (event.data.key === 'solve') {
 		const game = makeGame(event.data.payload)
 		const solution = astar(game)
-		if (solution) self.postMessage({ code: 'done', payload: solution })
-		else self.postMessage({ code: 'fail', payload: undefined })
+
+		if (solution) {
+			const message: SolvedMessage = { key: 'solved', payload: solution }
+			self.postMessage(message)
+		} else {
+			const message: UnsolvableMessage = { key: 'unsolvable', payload: undefined }
+			self.postMessage(message)
+		}
 	}
 }
 
@@ -278,11 +299,4 @@ function isGameProgressing(game: Game): boolean {
 	return game.solution
 		.slice(-n)
 		.some((move) => move.type === 'discardPile' || move.type === 'discardStash')
-}
-
-function moveToString(move: Move, game: Game): string {
-	if (move.type === 'stash') return `${move.cards[0]}->STASH`
-	if (move.type === 'unstash') return `STASH${move.cards[0]}->${game.piles[move.to][0] || 'X'}`
-	if (move.type === 'pile') return `${move.cards}->${game.piles[move.to][0] || 'X'}`
-	return 'UNKNOWN'
 }

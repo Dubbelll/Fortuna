@@ -43,22 +43,42 @@
 
 		&.tarot {
 			border: 2px solid black;
+
+			& > .face {
+				color: black;
+			}
 		}
 
 		&.red {
 			border: 2px solid red;
+
+			& > .face {
+				color: red;
+			}
 		}
 
 		&.green {
 			border: 2px solid green;
+
+			& > .face {
+				color: green;
+			}
 		}
 
 		&.blue {
 			border: 2px solid blue;
+
+			& > .face {
+				color: blue;
+			}
 		}
 
 		&.yellow {
 			border: 2px solid yellow;
+
+			& > .face {
+				color: yellow;
+			}
 		}
 	}
 
