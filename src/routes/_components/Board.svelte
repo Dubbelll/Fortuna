@@ -19,7 +19,7 @@
 				<Card card={undefined} {animateIn} />
 			</div>
 			{#each pile as card, cardIndex (card)}
-				<div class="card" style:margin-top={`${cardIndex * 24}px`}>
+				<div class="card" style:margin-top={`${cardIndex * 25}px`}>
 					<Card {card} {animateIn} />
 				</div>
 			{/each}

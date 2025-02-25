@@ -33,6 +33,7 @@
 <style>
 	.card {
 		width: 100%;
+		min-width: 44px;
 		aspect-ratio: 2.5 / 3.5;
 		background-color: white;
 		user-select: none;

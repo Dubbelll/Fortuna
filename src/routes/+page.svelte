@@ -130,14 +130,8 @@
 </script>
 
 <div class="container">
-	<div class="controls">
-		<button onclick={solve} disabled={mode !== 'idle'}>SOLVE</button>
-		<button onclick={shuffle} disabled={mode !== 'idle' && mode !== 'unsolvable'}>
-			SHUFFLE
-		</button>
-	</div>
 	<div class="game">
-		<Discard {discard} {stash} {animateIn} />
+		<Discard {discard} {stash} {mode} {solve} {shuffle} {animateIn} />
 		<Board {piles} {animateIn} />
 		{#if mode === 'unsolvable'}
 			<div class="unsolvable">
@@ -158,23 +152,11 @@
 		padding: 8px;
 	}
 
-	.controls {
-		display: grid;
-		grid-auto-flow: column;
-		grid-auto-columns: min-content;
-		gap: 8px;
-	}
-
-	button {
-		padding: 0 8px;
-		border: 2px solid black;
-		background-color: white;
-	}
-
 	.game {
 		position: relative;
 		display: grid;
 		gap: 8px;
+		overflow-x: auto;
 	}
 
 	.unsolvable {

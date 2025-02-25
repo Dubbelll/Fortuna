@@ -5,10 +5,16 @@
 	let {
 		discard,
 		stash,
+		mode,
+		solve,
+		shuffle,
 		animateIn,
 	}: {
 		discard: number[][]
 		stash: number[]
+		mode: string
+		solve: () => void
+		shuffle: () => void
 		animateIn: (node: HTMLElement) => TransitionConfig
 	} = $props()
 </script>
@@ -16,6 +22,12 @@
 <div class="discard">
 	{@render pile('discard0', discard[0], 1)}
 	{@render pile('discard1', discard[1], 2)}
+	<div class="controls">
+		<button onclick={solve} disabled={mode !== 'idle'}>SOLVE</button>
+		<button onclick={shuffle} disabled={mode !== 'idle' && mode !== 'unsolvable'}>
+			SHUFFLE
+		</button>
+	</div>
 	{@render pile('stash', stash, 7)}
 	{@render pile('discard2', discard[2], 8)}
 	{@render pile('discard3', discard[3], 9)}
@@ -50,5 +62,19 @@
 	.card {
 		grid-column: 1;
 		grid-row: 1;
+	}
+
+	.controls {
+		grid-column: 3/7;
+		display: grid;
+		justify-content: end;
+		align-content: end;
+		gap: 8px;
+	}
+
+	button {
+		padding: 0 8px;
+		border: 2px solid black;
+		background-color: white;
 	}
 </style>
