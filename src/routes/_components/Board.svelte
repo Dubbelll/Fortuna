@@ -5,24 +5,38 @@
 	let {
 		piles,
 		mode,
+		startMove,
+		move,
 		animateIn,
 	}: {
 		piles: number[][]
 		mode: string
+		startMove: (card: number | undefined) => void
+		move: (column: number) => void
 		animateIn: (node: HTMLElement) => TransitionConfig
 	} = $props()
 	let reversedPiles = $derived(piles.map((pile) => [...pile].reverse()))
+
+	function allowMove(event: DragEvent) {
+		event.preventDefault()
+	}
 </script>
 
 <div class="board">
 	{#each reversedPiles as pile, pileIndex}
-		<div id={`pile${pileIndex}`} class="pile">
+		<div
+			id={`pile${pileIndex}`}
+			class="pile"
+			role="none"
+			ondragover={allowMove}
+			ondrop={() => move(pileIndex)}
+		>
 			<div class="card">
-				<Card card={undefined} {animateIn} />
+				<Card />
 			</div>
 			{#each pile as card, cardIndex (card)}
 				<div class="card" style:margin-top={`${cardIndex * 25}px`}>
-					<Card {card} {animateIn} />
+					<Card {card} {startMove} {animateIn} movable={true} />
 				</div>
 			{/each}
 		</div>

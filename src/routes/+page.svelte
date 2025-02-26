@@ -1,17 +1,22 @@
 <script lang="ts">
-	import { makeDiscard, makePiles, solvableDiscard, solvablePiles } from '$lib/play'
+	import { makeDiscard, makePiles, makeSortedDeck, type Mode } from '$lib/play'
 	import type { Move, SolvedMessage, SolveMessage, UnsolvableMessage } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import type { TransitionConfig } from 'svelte/transition'
 	import Board from './_components/Board.svelte'
+	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
 
-	let mode: 'idle' | 'solving' | 'playing' | 'paused' | 'unsolvable' = $state('idle')
-	let piles = $state(solvablePiles)
-	let discard = $state(solvableDiscard)
+	let mode: Mode = $state('idle')
+	let piles = $state(makePiles())
+	let discard = $state(makeDiscard())
 	let stash: number[] = $state([])
 	let solution: Move[] = $state([])
+	let deck = $state(makeSortedDeck())
+	let movingDiscardCard: number | undefined = $state(undefined)
+	let movingBoardCard: number | undefined = $state(undefined)
+	let movingDeckCard: number | undefined = $state(undefined)
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
@@ -30,14 +35,6 @@
 		}
 	})
 
-	function shuffle() {
-		mode = 'idle'
-		discard = makeDiscard()
-		piles = makePiles()
-		solution = []
-		animateInById = {}
-	}
-
 	function solve() {
 		mode = 'solving'
 		const message: SolveMessage = {
@@ -49,6 +46,23 @@
 			},
 		}
 		solver.postMessage(message)
+	}
+
+	function shuffle() {
+		mode = 'idle'
+		discard = makeDiscard()
+		piles = makePiles()
+		solution = []
+		animateInById = {}
+	}
+
+	function make() {
+		mode = 'making'
+		discard = makeDiscard()
+		deck = makeSortedDeck()
+		piles = [[], [], [], [], [], [], [], [], [], [], []]
+		solution = []
+		animateInById = {}
 	}
 
 	function play() {
@@ -127,12 +141,85 @@
 			css: (t: number, u: number) => `transform: translate(${x * u}px,${y * u}px)`,
 		}
 	}
+
+	function startDiscardMove(card: number | undefined) {
+		movingDiscardCard = card
+	}
+
+	function startBoardMove(card: number | undefined) {
+		movingBoardCard = card
+	}
+
+	function startDeckMove(card: number | undefined) {
+		movingDeckCard = card
+	}
+
+	function moveToBoard(column: number) {
+		if (movingDiscardCard) {
+			discard = discard.map((suit) => suit.filter((card) => card !== movingDiscardCard))
+			stash = stash.filter((card) => card !== movingDiscardCard)
+			piles[column] = [movingDiscardCard].concat(piles[column])
+			movingDiscardCard = undefined
+		}
+		if (movingBoardCard) {
+			piles = piles.map((pile) => pile.filter((card) => card !== movingBoardCard))
+			piles[column] = [movingBoardCard].concat(piles[column])
+			movingBoardCard = undefined
+		}
+		if (movingDeckCard) {
+			deck = deck.filter((card) => card !== movingDeckCard)
+			piles[column] = [movingDeckCard].concat(piles[column])
+			movingDeckCard = undefined
+		}
+	}
+
+	function moveToDiscard(suit: number) {
+		if (movingBoardCard) {
+			piles = piles.map((pile) => pile.filter((card) => card !== movingBoardCard))
+			if (suit === -1) stash.push(movingBoardCard)
+			else discard[suit].push(movingBoardCard)
+			movingBoardCard = undefined
+		}
+		if (movingDeckCard) {
+			deck = deck.filter((card) => card !== movingDeckCard)
+			if (suit === -1) stash.push(movingDeckCard)
+			else discard[suit].push(movingDeckCard)
+			movingDeckCard = undefined
+		}
+	}
+
+	function moveToDeck() {
+		if (movingDiscardCard) {
+			discard = discard.map((suit) => suit.filter((card) => card !== movingDiscardCard))
+			stash = stash.filter((card) => card !== movingDiscardCard)
+			deck.push(movingDiscardCard)
+			movingDiscardCard = undefined
+		}
+		if (movingBoardCard) {
+			piles = piles.map((pile) => pile.filter((card) => card !== movingBoardCard))
+			deck.push(movingBoardCard)
+			movingBoardCard = undefined
+		}
+	}
 </script>
 
 <div class="container">
 	<div class="game">
-		<Discard {discard} {stash} {mode} {solve} {shuffle} {animateIn} />
-		<Board {piles} {mode} {animateIn} />
+		<Discard
+			{discard}
+			{stash}
+			{mode}
+			{solve}
+			{shuffle}
+			{make}
+			{animateIn}
+			startMove={startDiscardMove}
+			move={moveToDiscard}
+		/>
+		{#if mode === 'making'}
+			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
+		{/if}
+		<Board {piles} {mode} {animateIn} startMove={startBoardMove} move={moveToBoard} />
 	</div>
 </div>
 

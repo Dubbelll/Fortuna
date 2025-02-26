@@ -3,13 +3,22 @@
 	import type { TransitionConfig } from 'svelte/transition'
 
 	let {
-		card,
+		card = undefined,
+		movable = false,
+		startMove,
 		animateIn,
 	}: {
-		card: number | undefined
-		animateIn: (node: HTMLElement) => TransitionConfig
+		card?: number
+		movable?: boolean
+		startMove?: (card: number | undefined) => void
+		animateIn?: (node: HTMLElement) => TransitionConfig
 	} = $props()
 	let face = $derived(makeFace(card))
+
+	function maybeAnimateIn(node: HTMLElement): TransitionConfig {
+		if (animateIn) return animateIn(node)
+		else return {}
+	}
 </script>
 
 <div
@@ -23,7 +32,10 @@
 		blue: card && card >= 400 && card < 500,
 		yellow: card && card >= 500 && card < 600,
 	}}
-	in:animateIn
+	role="none"
+	draggable={movable}
+	ondragstart={startMove ? () => startMove(card) : undefined}
+	in:maybeAnimateIn
 >
 	{#if card}
 		<div class="face">{face}</div>

@@ -8,6 +8,9 @@
 		mode,
 		solve,
 		shuffle,
+		make,
+		startMove,
+		move,
 		animateIn,
 	}: {
 		discard: number[][]
@@ -15,34 +18,49 @@
 		mode: string
 		solve: () => void
 		shuffle: () => void
+		make: () => void
+		startMove: (card: number | undefined) => void
+		move: (suit: number) => void
 		animateIn: (node: HTMLElement) => TransitionConfig
 	} = $props()
+
+	function allowMove(event: DragEvent) {
+		event.preventDefault()
+	}
 </script>
 
 <div class="discard">
-	{@render pile('discard0', discard[0], 1)}
-	{@render pile('discard1', discard[1], 2)}
+	{@render pile('discard0', discard[0], 0, 1)}
+	{@render pile('discard1', discard[1], 1, 2)}
 	<div class="controls">
 		<button onclick={solve} disabled={mode !== 'idle'}>SOLVE</button>
 		<button onclick={shuffle} disabled={mode !== 'idle' && mode !== 'unsolvable'}>
 			SHUFFLE
 		</button>
+		<button onclick={make} disabled={mode !== 'idle'}>MAKE</button>
 	</div>
-	{@render pile('stash', stash, 7)}
-	{@render pile('discard2', discard[2], 8)}
-	{@render pile('discard3', discard[3], 9)}
-	{@render pile('discard4', discard[4], 10)}
-	{@render pile('discard5', discard[5], 11)}
+	{@render pile('stash', stash, -1, 7)}
+	{@render pile('discard2', discard[2], 2, 8)}
+	{@render pile('discard3', discard[3], 3, 9)}
+	{@render pile('discard4', discard[4], 4, 10)}
+	{@render pile('discard5', discard[5], 5, 11)}
 </div>
 
-{#snippet pile(id: string, pile: number[], column: number)}
-	<div {id} class="pile" style:grid-column={column}>
+{#snippet pile(id: string, pile: number[], suit: number, column: number)}
+	<div
+		{id}
+		class="pile"
+		style:grid-column={column}
+		role="none"
+		ondragover={allowMove}
+		ondrop={() => move(suit)}
+	>
 		<div class="card">
-			<Card card={undefined} {animateIn} />
+			<Card />
 		</div>
 		{#each pile as card (card)}
 			<div class="card">
-				<Card {card} {animateIn} />
+				<Card {card} {startMove} {animateIn} movable={true} />
 			</div>
 		{/each}
 	</div>

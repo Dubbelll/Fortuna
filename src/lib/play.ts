@@ -1,5 +1,7 @@
 import type { Game } from './solve'
 
+export type Mode = 'idle' | 'solving' | 'playing' | 'paused' | 'unsolvable' | 'making'
+
 export function makePiles(): number[][] {
 	const deck = makeShuffledDeck()
 	const piles: number[][] = [[], [], [], [], [], [], [], [], [], []]
@@ -48,6 +50,10 @@ export function makeFace(card: number | undefined): string {
 	if (card >= 500 && card < 600) return '' + (card - 500)
 
 	return ''
+}
+
+export function makeSortedDeck(): number[] {
+	return deck.toSorted()
 }
 
 const deck = [
