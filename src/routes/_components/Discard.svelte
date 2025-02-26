@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Mode } from '$lib/play'
 	import type { TransitionConfig } from 'svelte/transition'
 	import Card from './Card.svelte'
 
@@ -15,7 +16,7 @@
 	}: {
 		discard: number[][]
 		stash: number[]
-		mode: string
+		mode: Mode
 		solve: () => void
 		shuffle: () => void
 		make: () => void
@@ -33,11 +34,14 @@
 	{@render pile('discard0', discard[0], 0, 1)}
 	{@render pile('discard1', discard[1], 1, 2)}
 	<div class="controls">
-		<button onclick={solve} disabled={mode !== 'idle'}>SOLVE</button>
-		<button onclick={shuffle} disabled={mode !== 'idle' && mode !== 'unsolvable'}>
+		<button onclick={solve} disabled={mode !== 'idle' && mode !== 'making'}>SOLVE</button>
+		<button
+			onclick={shuffle}
+			disabled={mode !== 'idle' && mode !== 'unsolvable' && mode !== 'making'}
+		>
 			SHUFFLE
 		</button>
-		<button onclick={make} disabled={mode !== 'idle'}>MAKE</button>
+		<button onclick={make} disabled={mode !== 'idle' && mode !== 'making'}>MAKE</button>
 	</div>
 	{@render pile('stash', stash, -1, 7)}
 	{@render pile('discard2', discard[2], 2, 8)}
