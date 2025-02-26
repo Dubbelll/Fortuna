@@ -54,6 +54,7 @@
 		display: grid;
 		grid-template-columns: repeat(11, 1fr);
 		column-gap: 8px;
+		overflow-y: auto;
 	}
 
 	.pile {

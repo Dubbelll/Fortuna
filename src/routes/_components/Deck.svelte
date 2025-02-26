@@ -27,6 +27,7 @@
 	.deck {
 		display: grid;
 		grid-auto-flow: column;
+		grid-auto-columns: 44px;
 		overflow-x: auto;
 	}
 </style>

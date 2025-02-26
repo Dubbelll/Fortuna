@@ -237,6 +237,7 @@
 	.game {
 		display: grid;
 		gap: 8px;
+		max-height: calc(100dvh - 16px);
 		overflow-x: auto;
 	}
 </style>
