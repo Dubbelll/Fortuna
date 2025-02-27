@@ -8,6 +8,7 @@
 	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
 	import Menu from './_components/Menu.svelte'
+	import Result from './_components/Result.svelte'
 
 	let mode: Mode = $state('idle')
 	let piles = $state(makePiles())
@@ -21,13 +22,14 @@
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
+	let result: Result
 
 	onMount(() => {
 		solver = new Solver()
 		solver.onmessage = (event: MessageEvent<SolvedMessage | UnsolvableMessage>) => {
 			if (event.data.key === 'solved') {
+				mode = 'solved'
 				solution = event.data.payload
-				play()
 			}
 			if (event.data.key === 'unsolvable') {
 				mode = 'unsolvable'
@@ -57,8 +59,8 @@
 		animateInById = {}
 	}
 
-	function make() {
-		mode = 'making'
+	function enter() {
+		mode = 'entering'
 		discard = makeDiscard()
 		deck = makeSortedDeck()
 		piles = [[], [], [], [], [], [], [], [], [], [], []]
@@ -66,7 +68,7 @@
 		animateInById = {}
 	}
 
-	function play() {
+	function autoplay() {
 		mode = 'autoplaying'
 		let interval = setInterval(() => {
 			if (solution.length > 0) next()
@@ -76,6 +78,10 @@
 			}
 		}, 320)
 	}
+
+	function cancel() {}
+
+	function show() {}
 
 	function next() {
 		const move = solution.shift()
@@ -207,7 +213,7 @@
 <div class="container">
 	<div class="game">
 		<div class="discard">
-			<Menu {mode} {solve} {shuffle} {make} />
+			<Menu {mode} {solve} {shuffle} {enter} {cancel} {show} {autoplay} />
 			<Discard
 				{discard}
 				{stash}
@@ -216,10 +222,11 @@
 				move={moveToDiscard}
 			/>
 		</div>
-		{#if mode === 'making'}
+		{#if mode === 'entering'}
 			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 		{/if}
-		<Board {piles} {mode} {animateIn} startMove={startBoardMove} move={moveToBoard} />
+		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
+		<Result {mode} {solution} startAutoplay={autoplay} bind:this={result} />
 	</div>
 </div>
 
@@ -235,6 +242,7 @@
 	}
 
 	.game {
+		position: relative;
 		display: grid;
 		justify-content: start;
 		gap: 8px;
