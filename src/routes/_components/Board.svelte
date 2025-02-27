@@ -31,13 +31,9 @@
 			ondragover={allowMove}
 			ondrop={() => move(pileIndex)}
 		>
-			<div class="card">
-				<Card />
-			</div>
+			<Card />
 			{#each pile as card, cardIndex (card)}
-				<div class="card" style:margin-top={`${cardIndex * 25}px`}>
-					<Card {card} {startMove} {animateIn} movable={true} />
-				</div>
+				<Card {card} {startMove} {animateIn} movable={true} offset={cardIndex * 25} />
 			{/each}
 		</div>
 	{/each}
@@ -52,18 +48,14 @@
 	.board {
 		position: relative;
 		display: grid;
+		justify-content: start;
 		grid-template-columns: repeat(11, 1fr);
 		column-gap: 8px;
-		overflow-y: auto;
+		overflow: auto;
 	}
 
 	.pile {
 		display: grid;
-	}
-
-	.card {
-		grid-column: 1;
-		grid-row: 1;
 	}
 
 	.unsolvable {

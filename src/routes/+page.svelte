@@ -7,6 +7,7 @@
 	import Board from './_components/Board.svelte'
 	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
+	import Menu from './_components/Menu.svelte'
 
 	let mode: Mode = $state('idle')
 	let piles = $state(makePiles())
@@ -66,7 +67,7 @@
 	}
 
 	function play() {
-		mode = 'playing'
+		mode = 'autoplaying'
 		let interval = setInterval(() => {
 			if (solution.length > 0) next()
 			else {
@@ -205,17 +206,16 @@
 
 <div class="container">
 	<div class="game">
-		<Discard
-			{discard}
-			{stash}
-			{mode}
-			{solve}
-			{shuffle}
-			{make}
-			{animateIn}
-			startMove={startDiscardMove}
-			move={moveToDiscard}
-		/>
+		<div class="discard">
+			<Menu {mode} {solve} {shuffle} {make} />
+			<Discard
+				{discard}
+				{stash}
+				{animateIn}
+				startMove={startDiscardMove}
+				move={moveToDiscard}
+			/>
+		</div>
 		{#if mode === 'making'}
 			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 		{/if}
@@ -236,8 +236,16 @@
 
 	.game {
 		display: grid;
+		justify-content: start;
 		gap: 8px;
+		max-width: calc(100dvw - 16px);
 		max-height: calc(100dvh - 16px);
-		overflow-x: auto;
+	}
+
+	.discard {
+		display: grid;
+		grid-template-columns: min-content auto;
+		justify-content: space-between;
+		gap: 8px;
 	}
 </style>
