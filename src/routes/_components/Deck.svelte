@@ -19,7 +19,7 @@
 
 <div class="deck" role="none" ondragover={allowMove} ondrop={move}>
 	{#each sortedDeck as card (card)}
-		<Card {card} {startMove} movable={true} />
+		<Card {card} {startMove} movable={true} stack={false} />
 	{/each}
 </div>
 
@@ -27,7 +27,7 @@
 	.deck {
 		display: grid;
 		grid-auto-flow: column;
-		grid-auto-columns: 44px;
+		grid-auto-columns: 62px;
 		overflow-x: auto;
 	}
 </style>

@@ -238,7 +238,7 @@
 		display: grid;
 		justify-content: start;
 		gap: 8px;
-		max-width: calc(100dvw - 16px);
+		max-width: min(calc(100dvw - 16px), 784px);
 		max-height: calc(100dvh - 16px);
 	}
 

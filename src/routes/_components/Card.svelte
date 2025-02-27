@@ -6,12 +6,14 @@
 		card = undefined,
 		movable = false,
 		offset = undefined,
+		stack = true,
 		startMove,
 		animateIn,
 	}: {
 		card?: number
 		movable?: boolean
 		offset?: number
+		stack?: boolean
 		startMove?: (card: number | undefined) => void
 		animateIn?: (node: HTMLElement) => TransitionConfig
 	} = $props()
@@ -35,6 +37,8 @@
 		yellow: card && card >= 500 && card < 600,
 	}}
 	style:margin-top={offset ? `${offset}px` : undefined}
+	style:grid-column={stack ? 1 : undefined}
+	style:grid-row={stack ? 1 : undefined}
 	role="none"
 	draggable={movable}
 	ondragstart={startMove ? () => startMove(card) : undefined}
@@ -47,8 +51,6 @@
 
 <style>
 	.card {
-		grid-column: 1;
-		grid-row: 1;
 		width: 64px;
 		aspect-ratio: 1 / 1.64;
 		background-color: white;
