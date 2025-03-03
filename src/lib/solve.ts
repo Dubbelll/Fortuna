@@ -58,23 +58,30 @@ self.onmessage = (event: MessageEvent<SolveMessage>) => {
 
 // playing
 function astar(start: Game): Move[] | undefined {
-	let open: Game[] = [start]
-	let closed: Game[] = []
+	const open: Game[] = [start]
+	const openKeys: Record<string, boolean> = { [start.key]: true }
+	const closed: Game[] = []
+	const closedKeys: Record<string, boolean> = {}
 
 	while (open.length > 0) {
 		const node = open.sort(compareCost).shift()!
+		delete openKeys[node.key]
 		if (node.remaining === 0) {
 			return node.solution
 		}
 
 		closed.push(node)
+		closedKeys[node.key] = true
 		const neighbors = makeNextGames(node)
 		for (const neighbor of neighbors) {
 			// bad node skip to next
-			if (closed.find((node) => node.key === neighbor.key)) continue
+			if (closedKeys[neighbor.key]) continue
 
 			// good new node so consider it an option
-			if (!open.find((node) => node.key === neighbor.key)) open.push(neighbor)
+			if (!openKeys[neighbor.key]) {
+				open.push(neighbor)
+				openKeys[neighbor.key] = true
+			}
 		}
 	}
 
