@@ -55,19 +55,15 @@ self.onmessage = (event: MessageEvent<SolveMessage>) => {
 
 // playing
 function astar(start: Game): Move[] | undefined {
-	const open: Game[] = [start]
+	const queue: PriorityQueue = new PriorityQueue(start)
 	const openKeys: Record<string, boolean> = { [start.key]: true }
-	const closed: Game[] = []
 	const closedKeys: Record<string, boolean> = {}
 
-	while (open.length > 0) {
-		const node = open.sort(compareCost).shift()!
-		delete openKeys[node.key]
-		if (node.penalty === -1.1) {
-			return node.solution
-		}
+	while (queue.size > 0) {
+		const node = queue.pop()!
+		if (node.penalty === -1.1) return node.solution
 
-		closed.push(node)
+		openKeys[node.key] = false
 		closedKeys[node.key] = true
 		const neighbors = makeNextGames(node)
 		for (const neighbor of neighbors) {
@@ -76,7 +72,7 @@ function astar(start: Game): Move[] | undefined {
 
 			// good new node so consider it an option
 			if (!openKeys[neighbor.key]) {
-				open.push(neighbor)
+				queue.push(neighbor)
 				openKeys[neighbor.key] = true
 			}
 		}
@@ -291,4 +287,64 @@ function makeGame(payload: { piles: number[][]; discard: number[][]; stash: numb
 	}
 
 	return game
+}
+
+class PriorityQueue {
+	heap: Game[]
+
+	constructor(start: Game) {
+		this.heap = [start]
+	}
+
+	get size() {
+		return this.heap.length
+	}
+
+	push(node: Game) {
+		this.heap.push(node)
+		let index = this.heap.length - 1
+
+		// bubble up
+		while (index > 0) {
+			let parentIndex = Math.floor((index - 1) / 2)
+			let parent = this.heap[parentIndex]
+			if (parent.penalty <= node.penalty) break
+
+			this.heap[parentIndex] = node
+			this.heap[index] = parent
+			index = parentIndex
+		}
+	}
+
+	pop(): Game | undefined {
+		const root = this.heap[0]
+		const leaf = this.heap.pop()
+		if (!leaf || this.heap.length === 0) return root
+
+		// sink down
+		this.heap[0] = leaf
+		let index = 0
+		while (true) {
+			const leftChildIndex = 2 * index + 1
+			const rightChildIndex = 2 * index + 2
+			const leftChild = this.heap[leftChildIndex]
+			const rightChild = this.heap[rightChildIndex]
+			let swap: number | undefined = undefined
+
+			if (leftChild && leftChild.penalty < leaf.penalty) swap = leftChildIndex
+			if (
+				rightChild &&
+				rightChild.penalty < (swap === undefined ? leaf.penalty : leftChild.penalty)
+			)
+				swap = rightChildIndex
+
+			if (swap === undefined) break
+
+			this.heap[index] = this.heap[swap]
+			this.heap[swap] = leaf
+			index = swap
+		}
+
+		return root
+	}
 }
