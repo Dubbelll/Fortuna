@@ -1,6 +1,6 @@
 import type { Game } from './solve'
 
-export type Mode = 'idle' | 'solving' | 'solved' | 'autoplaying' | 'unsolvable' | 'entering'
+export type Mode = 'idle' | 'solving' | 'solved' | 'autoplaying' | 'unsolvable' | 'manual'
 
 export function makePiles(): number[][] {
 	const deck = makeShuffledDeck()

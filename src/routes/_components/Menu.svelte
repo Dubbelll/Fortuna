@@ -1,11 +1,16 @@
 <script lang="ts">
 	import type { Mode } from '$lib/play'
 
+	type EnabledControls = Record<
+		'solve' | 'shuffle' | 'manual' | 'cancel' | 'show' | 'autoplay',
+		boolean
+	>
+
 	let {
 		mode,
 		solve,
 		shuffle,
-		enter,
+		manual,
 		cancel,
 		show,
 		autoplay,
@@ -13,58 +18,40 @@
 		mode: Mode
 		solve: () => void
 		shuffle: () => void
-		enter: () => void
+		manual: () => void
 		cancel: () => void
 		show: () => void
 		autoplay: () => void
 	} = $props()
+	let enabled: EnabledControls = $derived(makeEnabled(mode))
+
+	function makeEnabled(mode: Mode): EnabledControls {
+		return {
+			solve: mode === 'idle',
+			shuffle:
+				mode === 'idle' || mode === 'solved' || mode === 'unsolvable' || mode === 'manual',
+			manual: mode === 'idle',
+			cancel: mode === 'solving' || mode === 'autoplaying',
+			show: mode === 'solved',
+			autoplay: mode === 'solved',
+		}
+	}
 </script>
 
 <div class="menu">
-	<button class="idle" onclick={solve} disabled={mode !== 'idle' && mode !== 'entering'}>
-		SOLVE
-	</button>
-	<button
-		class="idle"
-		onclick={shuffle}
-		disabled={mode !== 'idle' && mode !== 'unsolvable' && mode !== 'entering'}
-	>
-		SHUFFLE
-	</button>
-	<button class="idle" onclick={enter} disabled={mode !== 'idle' && mode !== 'entering'}>
-		ENTER
-	</button>
-	{#if mode === 'solved' || mode === 'solving' || mode === 'autoplaying'}
-		<button
-			class="busy"
-			style:grid-row="1"
-			onclick={cancel}
-			disabled={mode !== 'solving' && mode !== 'autoplaying'}
-		>
-			CANCEL
-		</button>
-		<button class="busy" style:grid-row="2" onclick={show} disabled={mode !== 'solved'}>
-			SHOW
-		</button>
-		<button class="busy" style:grid-row="3" onclick={autoplay} disabled={mode !== 'solved'}>
-			PLAY
-		</button>
-	{/if}
+	<button onclick={solve} disabled={!enabled.solve}>SOLVE</button>
+	<button onclick={cancel} disabled={!enabled.cancel}>CANCEL</button>
+	<button onclick={shuffle} disabled={!enabled.shuffle}>SHUFFLE</button>
+	<button onclick={show} disabled={!enabled.show}>SHOW</button>
+	<button onclick={manual} disabled={!enabled.manual}>MANUAL</button>
+	<button onclick={autoplay} disabled={!enabled.autoplay}>PLAY</button>
 </div>
 
 <style>
 	.menu {
 		display: grid;
-		justify-content: end;
+		grid-template-columns: min-content min-content;
 		gap: 8px;
-	}
-
-	.idle {
-		grid-column: 1;
-	}
-
-	.busy {
-		grid-column: 2;
 	}
 
 	button {

@@ -59,8 +59,8 @@
 		animateInById = {}
 	}
 
-	function enter() {
-		mode = 'entering'
+	function manual() {
+		mode = 'manual'
 		discard = makeDiscard()
 		deck = makeSortedDeck()
 		piles = [[], [], [], [], [], [], [], [], [], [], []]
@@ -213,7 +213,7 @@
 <div class="container">
 	<div class="game">
 		<div class="discard">
-			<Menu {mode} {solve} {shuffle} {enter} {cancel} {show} {autoplay} />
+			<Menu {mode} {solve} {shuffle} {manual} {cancel} {show} {autoplay} />
 			<Discard
 				{discard}
 				{stash}
@@ -222,7 +222,7 @@
 				move={moveToDiscard}
 			/>
 		</div>
-		{#if mode === 'entering'}
+		{#if mode === 'manual'}
 			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 		{/if}
 		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
