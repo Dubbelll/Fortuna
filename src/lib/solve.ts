@@ -1,17 +1,14 @@
 export interface Game {
-	// top cards + discard
+	// sorted values of discard + top cards
 	key: string
 	// top card first
 	piles: Pile[]
-	emptyPiles: number
 	// tarotLow, tarotHigh, red, green, blue, yellow
 	discard: number[]
 	// card on top of discard
 	stash: number[]
-	// part of heuristic (h) in A*
-	remaining: number
-	// cost (g) in A*
-	iteration: number
+	// remaining - (empty * 0.1) + (stash * 0.1)
+	penalty: number
 	// first move last
 	solution: Move[]
 }
@@ -66,7 +63,7 @@ function astar(start: Game): Move[] | undefined {
 	while (open.length > 0) {
 		const node = open.sort(compareCost).shift()!
 		delete openKeys[node.key]
-		if (node.remaining === 0) {
+		if (node.penalty === -1.1) {
 			return node.solution
 		}
 
@@ -89,19 +86,15 @@ function astar(start: Game): Move[] | undefined {
 }
 
 function compareCost(a: Game, b: Game): number {
-	return (
-		a.remaining - b.remaining || a.stash.length - b.stash.length || a.emptyPiles - b.emptyPiles
-	)
+	return a.penalty - b.penalty
 }
 
 function play(move: Move, game: Game) {
 	if (move.type === 'stash') {
 		game.piles[move.from].shift()
 		game.stash.push(move.cards[0])
-		if (game.piles[move.from].length === 0) game.emptyPiles++
 	}
 	if (move.type === 'unstash') {
-		if (game.piles[move.to].length === 0) game.emptyPiles--
 		game.stash.shift()
 		game.piles[move.to] = [move.cards[0], ...game.piles[move.to]]
 	}
@@ -110,7 +103,6 @@ function play(move: Move, game: Game) {
 			game.piles[move.from].shift()
 			game.piles[move.to] = [card, ...game.piles[move.to]]
 		}
-		if (game.piles[move.from].length === 0) game.emptyPiles++
 	}
 }
 
@@ -125,7 +117,6 @@ function discard(game: Game) {
 			if (suit !== -1) {
 				game.discard[suit] = stash
 				game.stash.shift()
-				game.remaining--
 				game.solution.push({
 					type: 'discardStash',
 					cards: [stash],
@@ -147,7 +138,6 @@ function discard(game: Game) {
 			if (suit !== -1) {
 				game.discard[suit] = card
 				game.piles[column].shift()
-				game.remaining--
 				game.solution.push({
 					type: 'discardPile',
 					cards: [card],
@@ -158,8 +148,11 @@ function discard(game: Game) {
 			}
 		}
 	}
+}
 
+function update(game: Game) {
 	game.key = makeKey(game.piles, game.discard)
+	game.penalty = makePenalty(game.piles, game.stash)
 }
 
 // constructing
@@ -173,15 +166,14 @@ function makeNextGame(move: Move, game: Game): Game {
 	const next: Game = {
 		key: game.key,
 		piles: game.piles.map((pile) => [...pile]),
-		emptyPiles: game.emptyPiles,
 		discard: [...game.discard],
 		stash: [...game.stash],
-		remaining: game.remaining,
-		iteration: game.iteration + 1,
+		penalty: game.penalty,
 		solution: game.solution.concat(move),
 	}
 	play(move, next)
 	discard(next)
+	update(next)
 
 	return next
 }
@@ -271,6 +263,19 @@ function makeKey(piles: number[][], discard: number[]): string {
 	return key.sort((a, b) => a - b).join('')
 }
 
+function makePenalty(piles: number[][], stash: number[]): number {
+	let remaining = 0
+	let emptyPiles = 0
+	for (let column = 0; column < piles.length; column++) {
+		if (piles[column].length === 0) emptyPiles++
+		for (let depth = 0; depth < piles[column].length; depth++) {
+			remaining++
+		}
+	}
+
+	return remaining - emptyPiles * 0.1 + stash.length * 0.1
+}
+
 function makeGame(payload: { piles: number[][]; discard: number[][]; stash: number[] }): Game {
 	const tarotDiscardDefaults = [99, 122]
 	const discard = payload.discard.map(
@@ -279,27 +284,11 @@ function makeGame(payload: { piles: number[][]; discard: number[][]; stash: numb
 	const game: Game = {
 		key: makeKey(payload.piles, discard),
 		piles: payload.piles,
-		emptyPiles: payload.piles.reduce(
-			(empty, pile) => (pile.length === 0 ? empty + 1 : empty),
-			0,
-		),
 		discard: discard,
 		stash: payload.stash,
-		remaining: payload.piles.reduce((sum, pile) => sum + pile.length, 0),
-		iteration: 0,
+		penalty: makePenalty(payload.piles, payload.stash),
 		solution: [],
 	}
 
 	return game
-}
-
-// convenience
-function isGameProgressing(game: Game): boolean {
-	const n = 7
-	if (game.solution.length < n) return true
-
-	// if we have discarded in the last n moves we are progressing
-	return game.solution
-		.slice(-n)
-		.some((move) => move.type === 'discardPile' || move.type === 'discardStash')
 }
