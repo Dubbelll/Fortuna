@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { solvable1 } from '$lib/example'
 	import { makeDiscard, makePiles, makeSortedDeck, type Mode } from '$lib/play'
 	import type { Move, SolvedMessage, SolveMessage, UnsolvableMessage } from '$lib/solve'
 	import Solver from '$lib/solve?worker'
@@ -11,7 +12,7 @@
 	import Result from './_components/Result.svelte'
 
 	let mode: Mode = $state('idle')
-	let piles = $state(makePiles())
+	let piles = $state(solvable1.piles)
 	let discard = $state(makeDiscard())
 	let stash: number[] = $state([])
 	let solution: Move[] = $state([])
@@ -19,6 +20,9 @@
 	let movingDiscardCard: number | undefined = $state(undefined)
 	let movingBoardCard: number | undefined = $state(undefined)
 	let movingDeckCard: number | undefined = $state(undefined)
+	let start = $state(0)
+	let finish = $state(0)
+	let duration = $derived(finish - start)
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
@@ -29,10 +33,12 @@
 		solver.onmessage = (event: MessageEvent<SolvedMessage | UnsolvableMessage>) => {
 			if (event.data.key === 'solved') {
 				mode = 'solved'
+				finish = Date.now()
 				solution = event.data.payload
 			}
 			if (event.data.key === 'unsolvable') {
 				mode = 'unsolvable'
+				finish = Date.now()
 				solution = []
 			}
 		}
@@ -40,6 +46,7 @@
 
 	function solve() {
 		mode = 'solving'
+		start = Date.now()
 		const message: SolveMessage = {
 			key: 'solve',
 			payload: {
@@ -228,6 +235,7 @@
 		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
 		<Result {mode} {solution} startAutoplay={autoplay} bind:this={result} />
 	</div>
+	<p>{duration}</p>
 </div>
 
 <svelte:head>

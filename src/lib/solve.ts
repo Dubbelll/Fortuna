@@ -1,8 +1,9 @@
 export interface Game {
-	// top cards + discard + stash
+	// top cards + discard
 	key: string
 	// top card first
 	piles: Pile[]
+	emptyPiles: number
 	// tarotLow, tarotHigh, red, green, blue, yellow
 	discard: number[]
 	// card on top of discard
@@ -61,20 +62,11 @@ function astar(start: Game): Move[] | undefined {
 	let closed: Game[] = []
 
 	while (open.length > 0) {
-		// cheapest open node according to A* cheapness (f = g + h)
-		let cheapest = 0
-		for (let i = 0; i < open.length; i++) {
-			const a = open[i]
-			const b = open[cheapest]
-			if (isBetter(a, b)) cheapest = i
-		}
-		const node = open[cheapest]
-
+		const node = open.sort(compareCost).shift()!
 		if (node.remaining === 0) {
 			return node.solution
 		}
 
-		open = open.slice(0, cheapest).concat(open.slice(cheapest + 1))
 		closed.push(node)
 		const neighbors = makeNextGames(node)
 		for (const neighbor of neighbors) {
@@ -89,11 +81,11 @@ function astar(start: Game): Move[] | undefined {
 	return undefined
 }
 
-function isBetter(a: Game, b: Game): boolean {
+function compareCost(a: Game, b: Game): number {
 	return (
-		a.remaining < b.remaining ||
-		a.stash.length < b.stash.length ||
-		a.piles.reduce((empty, pile) => (pile.length === 0 ? empty + 1 : empty), 0) >
+		a.remaining - b.remaining ||
+		a.stash.length - b.stash.length ||
+		a.piles.reduce((empty, pile) => (pile.length === 0 ? empty + 1 : empty), 0) -
 			b.piles.reduce((empty, pile) => (pile.length === 0 ? empty + 1 : empty), 0)
 	)
 }
@@ -102,8 +94,10 @@ function play(move: Move, game: Game) {
 	if (move.type === 'stash') {
 		game.piles[move.from].shift()
 		game.stash.push(move.cards[0])
+		if (game.piles[move.from].length === 0) game.emptyPiles++
 	}
 	if (move.type === 'unstash') {
+		if (game.piles[move.to].length === 0) game.emptyPiles--
 		game.stash.shift()
 		game.piles[move.to] = [move.cards[0], ...game.piles[move.to]]
 	}
@@ -112,6 +106,7 @@ function play(move: Move, game: Game) {
 			game.piles[move.from].shift()
 			game.piles[move.to] = [card, ...game.piles[move.to]]
 		}
+		if (game.piles[move.from].length === 0) game.emptyPiles++
 	}
 }
 
@@ -160,13 +155,11 @@ function discard(game: Game) {
 		}
 	}
 
-	game.key = makeKey(game)
+	game.key = makeKey(game.piles, game.discard)
 }
 
 // constructing
 function makeNextGames(game: Game): Game[] {
-	if (!isGameProgressing(game)) return []
-
 	const moves = makePossibleMoves(game)
 
 	return moves.map((move) => makeNextGame(move, game))
@@ -176,6 +169,7 @@ function makeNextGame(move: Move, game: Game): Game {
 	const next: Game = {
 		key: game.key,
 		piles: game.piles.map((pile) => [...pile]),
+		emptyPiles: game.emptyPiles,
 		discard: [...game.discard],
 		stash: [...game.stash],
 		remaining: game.remaining,
@@ -264,29 +258,34 @@ function makePossibleMoves(game: Game): Move[] {
 	return moves
 }
 
-export function makeKey(game: Game): string {
-	let key = ''
-	for (const pile of game.piles) {
-		key += pile[0] || 'X'
+function makeKey(piles: number[][], discard: number[]): string {
+	const key: number[] = [...discard]
+	for (const pile of piles) {
+		if (pile.length !== 0) key.push(pile[0])
 	}
-	for (const discard of game.discard) {
-		key += discard
-	}
-	return key + (game.stash[0] || 'X')
+
+	return key.sort((a, b) => a - b).join('')
 }
 
 function makeGame(payload: { piles: number[][]; discard: number[][]; stash: number[] }): Game {
 	const tarotDiscardDefaults = [99, 122]
+	const discard = payload.discard.map(
+		(suit, i) => suit[suit.length - 1] || tarotDiscardDefaults[i],
+	)
 	const game: Game = {
-		key: '',
+		key: makeKey(payload.piles, discard),
 		piles: payload.piles,
-		discard: payload.discard.map((suit, i) => suit[suit.length - 1] || tarotDiscardDefaults[i]),
+		emptyPiles: payload.piles.reduce(
+			(empty, pile) => (pile.length === 0 ? empty + 1 : empty),
+			0,
+		),
+		discard: discard,
 		stash: payload.stash,
 		remaining: payload.piles.reduce((sum, pile) => sum + pile.length, 0),
 		iteration: 0,
 		solution: [],
 	}
-	game.key = makeKey(game)
+
 	return game
 }
 
