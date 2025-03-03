@@ -83,10 +83,7 @@ function astar(start: Game): Move[] | undefined {
 
 function compareCost(a: Game, b: Game): number {
 	return (
-		a.remaining - b.remaining ||
-		a.stash.length - b.stash.length ||
-		a.piles.reduce((empty, pile) => (pile.length === 0 ? empty + 1 : empty), 0) -
-			b.piles.reduce((empty, pile) => (pile.length === 0 ? empty + 1 : empty), 0)
+		a.remaining - b.remaining || a.stash.length - b.stash.length || a.emptyPiles - b.emptyPiles
 	)
 }
 
