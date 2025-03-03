@@ -9,7 +9,7 @@
 	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
 	import Menu from './_components/Menu.svelte'
-	import Result from './_components/Result.svelte'
+	import Steps from './_components/Steps.svelte'
 
 	let mode: Mode = $state('idle')
 	let piles = $state(solvable1.piles)
@@ -20,25 +20,20 @@
 	let movingDiscardCard: number | undefined = $state(undefined)
 	let movingBoardCard: number | undefined = $state(undefined)
 	let movingDeckCard: number | undefined = $state(undefined)
-	let start = $state(0)
-	let finish = $state(0)
-	let duration = $derived(finish - start)
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
-	let result: Result
+	let steps: Steps
 
 	onMount(() => {
 		solver = new Solver()
 		solver.onmessage = (event: MessageEvent<SolvedMessage | UnsolvableMessage>) => {
 			if (event.data.key === 'solved') {
 				mode = 'solved'
-				finish = Date.now()
 				solution = event.data.payload
 			}
 			if (event.data.key === 'unsolvable') {
 				mode = 'unsolvable'
-				finish = Date.now()
 				solution = []
 			}
 		}
@@ -46,7 +41,6 @@
 
 	function solve() {
 		mode = 'solving'
-		start = Date.now()
 		const message: SolveMessage = {
 			key: 'solve',
 			payload: {
@@ -75,6 +69,10 @@
 		animateInById = {}
 	}
 
+	function showSteps() {}
+
+	function showStats() {}
+
 	function autoplay() {
 		mode = 'autoplaying'
 		let interval = setInterval(() => {
@@ -85,10 +83,6 @@
 			}
 		}, 320)
 	}
-
-	function cancel() {}
-
-	function show() {}
 
 	function next() {
 		const move = solution.shift()
@@ -220,7 +214,14 @@
 <div class="container">
 	<div class="game">
 		<div class="discard">
-			<Menu {mode} {solve} {shuffle} {manual} {cancel} {show} {autoplay} />
+			<Menu
+				{mode}
+				{solve}
+				{shuffle}
+				{manual}
+				{autoplay}
+				popovers={{ steps: 'steps', stats: 'stats' }}
+			/>
 			<Discard
 				{discard}
 				{stash}
@@ -233,9 +234,8 @@
 			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 		{/if}
 		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
-		<Result {mode} {solution} startAutoplay={autoplay} bind:this={result} />
+		<Steps {solution} id="steps" />
 	</div>
-	<p>{duration}</p>
 </div>
 
 <svelte:head>

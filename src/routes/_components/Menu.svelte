@@ -2,25 +2,23 @@
 	import type { Mode } from '$lib/play'
 
 	type EnabledControls = Record<
-		'solve' | 'shuffle' | 'manual' | 'cancel' | 'show' | 'autoplay',
+		'solve' | 'shuffle' | 'manual' | 'showSteps' | 'showStats' | 'autoplay',
 		boolean
 	>
 
 	let {
 		mode,
+		popovers,
 		solve,
 		shuffle,
 		manual,
-		cancel,
-		show,
 		autoplay,
 	}: {
 		mode: Mode
+		popovers: { steps: string; stats: string }
 		solve: () => void
 		shuffle: () => void
 		manual: () => void
-		cancel: () => void
-		show: () => void
 		autoplay: () => void
 	} = $props()
 	let enabled: EnabledControls = $derived(makeEnabled(mode))
@@ -28,11 +26,10 @@
 	function makeEnabled(mode: Mode): EnabledControls {
 		return {
 			solve: mode === 'idle',
-			shuffle:
-				mode === 'idle' || mode === 'solved' || mode === 'unsolvable' || mode === 'manual',
+			shuffle: true,
 			manual: mode === 'idle',
-			cancel: mode === 'solving' || mode === 'autoplaying',
-			show: mode === 'solved',
+			showSteps: mode === 'solved',
+			showStats: mode === 'solved',
 			autoplay: mode === 'solved',
 		}
 	}
@@ -40,11 +37,11 @@
 
 <div class="menu">
 	<button onclick={solve} disabled={!enabled.solve}>SOLVE</button>
-	<button onclick={cancel} disabled={!enabled.cancel}>CANCEL</button>
+	<button popovertarget={popovers.steps} disabled={!enabled.showSteps}>STEPS</button>
 	<button onclick={shuffle} disabled={!enabled.shuffle}>SHUFFLE</button>
-	<button onclick={show} disabled={!enabled.show}>SHOW</button>
+	<button popovertarget={popovers.stats} disabled={!enabled.showSteps}>STATS</button>
 	<button onclick={manual} disabled={!enabled.manual}>MANUAL</button>
-	<button onclick={autoplay} disabled={!enabled.autoplay}>PLAY</button>
+	<button onclick={autoplay} disabled={!enabled.autoplay}>AUTO</button>
 </div>
 
 <style>
