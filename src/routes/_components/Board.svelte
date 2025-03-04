@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { TransitionConfig } from 'svelte/transition'
 	import Card from './Card.svelte'
+	import Placeholder from './Placeholder.svelte'
 
 	let {
 		piles,
@@ -29,7 +30,7 @@
 			ondragover={allowMove}
 			ondrop={() => move(pileIndex)}
 		>
-			<Card />
+			<Placeholder text="EMPTY" />
 			{#each pile as card, cardIndex (card)}
 				<Card {card} {startMove} {animateIn} movable={true} offset={cardIndex * 25} />
 			{/each}

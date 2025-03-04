@@ -8,6 +8,7 @@
 	import Board from './_components/Board.svelte'
 	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
+	import Explanation from './_components/Explanation.svelte'
 	import Menu from './_components/Menu.svelte'
 	import StepList from './_components/StepList.svelte'
 
@@ -231,6 +232,7 @@
 		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
 		<StepList {solution} id="steps" />
 	</div>
+	<Explanation />
 </div>
 
 <svelte:head>

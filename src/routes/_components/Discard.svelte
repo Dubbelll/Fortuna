@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { TransitionConfig } from 'svelte/transition'
 	import Card from './Card.svelte'
+	import Placeholder from './Placeholder.svelte'
 
 	let {
 		discard,
@@ -22,18 +23,18 @@
 </script>
 
 <div class="discard">
-	{@render pile('discard0', discard[0], 0)}
-	{@render pile('discard1', discard[1], 1)}
-	{@render pile('stash', stash, -1)}
-	{@render pile('discard2', discard[2], 2)}
-	{@render pile('discard3', discard[3], 3)}
-	{@render pile('discard4', discard[4], 4)}
-	{@render pile('discard5', discard[5], 5)}
+	{@render pile('discard0', discard[0], 0, 'UP')}
+	{@render pile('discard1', discard[1], 1, 'DOWN')}
+	{@render pile('stash', stash, -1, 'STASH')}
+	{@render pile('discard2', discard[2], 2, 'RED')}
+	{@render pile('discard3', discard[3], 3, 'GREEN')}
+	{@render pile('discard4', discard[4], 4, 'BLUE')}
+	{@render pile('discard5', discard[5], 5, 'YELLOW')}
 </div>
 
-{#snippet pile(id: string, pile: number[], suit: number)}
+{#snippet pile(id: string, pile: number[], suit: number, placeholder: string)}
 	<div {id} class="pile" role="none" ondragover={allowMove} ondrop={() => move(suit)}>
-		<Card />
+		<Placeholder text={placeholder} />
 		{#each pile as card (card)}
 			<Card {card} {startMove} {animateIn} movable={true} />
 		{/each}
