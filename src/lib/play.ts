@@ -1,4 +1,16 @@
+import type { Move } from './solve'
+
 export type Mode = 'idle' | 'solving' | 'solved' | 'autoplaying' | 'unsolvable' | 'manual'
+
+export interface Step {
+	from: 'stash' | SuitRank[]
+	to: 'stash' | 'empty' | SuitRank[]
+}
+
+export interface SuitRank {
+	suit: number
+	rank: string
+}
 
 export function makePiles(): number[][] {
 	const deck = makeShuffledDeck()
@@ -17,7 +29,9 @@ export function makePiles(): number[][] {
 		if (!discardable.includes(pile[0])) continue
 
 		const target = pile.findIndex((card) => !discardable.includes(card))
-		if (target === -1) continue
+		if (target === -1) {
+			continue
+		}
 		;[pile[0], pile[target]] = [pile[target], pile[0]]
 	}
 
@@ -38,20 +52,65 @@ export function makeDiscard(): number[][] {
 	return [[], [], [201], [301], [401], [501]]
 }
 
-export function makeFace(card: number | undefined): string {
+function makeSuit(card: number): number {
+	if (card < 200) return 100
+	if (card < 300) return 200
+	if (card < 400) return 300
+	if (card < 500) return 400
+	if (card < 600) return 500
+
+	return 0
+}
+
+export function makeRank(card: number | undefined): string {
 	if (!card) return ''
+	if (card < 200) return (card - 100).toString()
+	if (card < 300) return makeDeckRank(card - 200)
+	if (card < 400) return makeDeckRank(card - 300)
+	if (card < 500) return makeDeckRank(card - 400)
+	if (card < 600) return makeDeckRank(card - 500)
 
-	if (card >= 99 && card < 200) return '' + (card - 100)
-	if (card >= 200 && card < 300) return '' + (card - 200)
-	if (card >= 300 && card < 400) return '' + (card - 300)
-	if (card >= 400 && card < 500) return '' + (card - 400)
-	if (card >= 500 && card < 600) return '' + (card - 500)
+	return 'ERR'
+}
 
-	return ''
+function makeDeckRank(rank: number): string {
+	if (rank < 11) return rank.toString()
+	if (rank === 11) return 'J'
+	if (rank === 12) return 'Q'
+	if (rank === 13) return 'K'
+
+	return 'ERR'
 }
 
 export function makeSortedDeck(): number[] {
 	return deck.toSorted()
+}
+
+export function makeSteps(moves: Move[]): Step[] {
+	const steps: Step[] = []
+	for (const move of moves) {
+		if (move.type === 'stash')
+			steps.push({
+				from: [makeSuitRank(move.cards[0])],
+				to: 'stash',
+			})
+		if (move.type === 'unstash')
+			steps.push({
+				from: 'stash',
+				to: move.target === undefined ? 'empty' : [makeSuitRank(move.target)],
+			})
+		if (move.type === 'pile')
+			steps.push({
+				from: move.cards.map((card) => makeSuitRank(card)),
+				to: move.target === undefined ? 'empty' : [makeSuitRank(move.target)],
+			})
+	}
+
+	return steps
+}
+
+function makeSuitRank(card: number): SuitRank {
+	return { suit: makeSuit(card), rank: makeRank(card) }
 }
 
 const deck = [

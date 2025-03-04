@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { makeFace } from '$lib/play'
+	import { makeRank } from '$lib/play'
 	import type { TransitionConfig } from 'svelte/transition'
 
 	let {
@@ -17,7 +17,7 @@
 		startMove?: (card: number | undefined) => void
 		animateIn?: (node: HTMLElement) => TransitionConfig
 	} = $props()
-	let face = $derived(makeFace(card))
+	let rank = $derived(makeRank(card))
 
 	function maybeAnimateIn(node: HTMLElement): TransitionConfig {
 		if (animateIn) return animateIn(node)
@@ -45,7 +45,7 @@
 	in:maybeAnimateIn
 >
 	{#if card}
-		<div class="face">{face}</div>
+		<div class="rank">{rank}</div>
 	{/if}
 </div>
 
@@ -62,46 +62,26 @@
 
 		&.tarot {
 			border: 2px solid black;
-
-			& > .face {
-				color: black;
-			}
 		}
 
 		&.red {
 			border: 2px solid red;
-
-			& > .face {
-				color: red;
-			}
 		}
 
 		&.green {
 			border: 2px solid green;
-
-			& > .face {
-				color: green;
-			}
 		}
 
 		&.blue {
 			border: 2px solid blue;
-
-			& > .face {
-				color: blue;
-			}
 		}
 
 		&.yellow {
 			border: 2px solid yellow;
-
-			& > .face {
-				color: yellow;
-			}
 		}
 	}
 
-	.face {
+	.rank {
 		padding-left: 4px;
 	}
 </style>

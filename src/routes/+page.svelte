@@ -9,7 +9,7 @@
 	import Deck from './_components/Deck.svelte'
 	import Discard from './_components/Discard.svelte'
 	import Menu from './_components/Menu.svelte'
-	import Steps from './_components/Steps.svelte'
+	import StepList from './_components/StepList.svelte'
 
 	let mode: Mode = $state('idle')
 	let piles = $state(solvable1.piles)
@@ -23,7 +23,6 @@
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
-	let steps: Steps
 
 	onMount(() => {
 		solver = new Solver()
@@ -69,10 +68,6 @@
 		animateInById = {}
 	}
 
-	function showSteps() {}
-
-	function showStats() {}
-
 	function autoplay() {
 		mode = 'autoplaying'
 		let interval = setInterval(() => {
@@ -102,11 +97,11 @@
 		if (move.type === 'unstash') {
 			piles[move.to] = [stash.pop()!, ...piles[move.to]]
 		}
-		if (move.type === 'discardPile') {
-			discard[move.to].push(piles[move.from].shift()!)
-		}
-		if (move.type === 'discardStash') {
+		if (move.type === 'destash') {
 			discard[move.to].push(stash.pop()!)
+		}
+		if (move.type === 'discard') {
+			discard[move.to].push(piles[move.from].shift()!)
 		}
 	}
 
@@ -124,11 +119,11 @@
 			if (move.type === 'unstash') {
 				id = `card${stash}`
 			}
-			if (move.type === 'discardPile') {
-				id = `card${piles[move.from][0]}`
-			}
-			if (move.type === 'discardStash') {
+			if (move.type === 'destash') {
 				id = `card${stash}`
+			}
+			if (move.type === 'discard') {
+				id = `card${piles[move.from][0]}`
 			}
 
 			animateInById[id] = document.getElementById(id)?.getBoundingClientRect()
@@ -234,7 +229,7 @@
 			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 		{/if}
 		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
-		<Steps {solution} id="steps" />
+		<StepList {solution} id="steps" />
 	</div>
 </div>
 

@@ -16,10 +16,11 @@ export interface Game {
 }
 
 export interface Move {
-	type: 'pile' | 'stash' | 'unstash' | 'discardPile' | 'discardStash'
+	type: 'pile' | 'stash' | 'unstash' | 'destash' | 'discard'
 	cards: number[]
 	from: number
 	to: number
+	target: number | undefined
 }
 
 export interface SolveMessage {
@@ -36,6 +37,9 @@ export interface UnsolvableMessage {
 	key: 'unsolvable'
 	payload: undefined
 }
+
+// 0 remaining - (11 empty * 0.1) + (empty stash * 0.1)
+const SOLVED_PENALTY = -1.1
 
 // worker
 self.onmessage = (event: MessageEvent<SolveMessage>) => {
@@ -61,7 +65,7 @@ function solve(start: Game): Move[] | undefined {
 
 	while (queue.size > 0) {
 		const node = queue.pop()!
-		if (node.penalty === -1.1) return node.solution
+		if (node.penalty === SOLVED_PENALTY) return node.solution
 
 		openKeys[node.key] = false
 		closedKeys[node.key] = true
@@ -107,14 +111,15 @@ function discard(game: Game) {
 		if (stash < 200) {
 			const suit = game.discard.findIndex((discard) => Math.abs(discard - stash) === 1)
 			if (suit !== -1) {
-				game.discard[suit] = stash
-				game.stash.shift()
 				game.solution.push({
-					type: 'discardStash',
+					type: 'destash',
 					cards: [stash],
 					from: 0,
 					to: suit,
+					target: game.discard[suit],
 				})
+				game.discard[suit] = stash
+				game.stash.shift()
 				discarded = true
 			}
 		}
@@ -128,14 +133,15 @@ function discard(game: Game) {
 					Math.abs(discard - card) === 1 && (card < 200 || game.stash.length === 0),
 			)
 			if (suit !== -1) {
-				game.discard[suit] = card
-				game.piles[column].shift()
 				game.solution.push({
-					type: 'discardPile',
+					type: 'discard',
 					cards: [card],
 					from: column,
 					to: suit,
+					target: game.discard[suit],
 				})
+				game.discard[suit] = card
+				game.piles[column].shift()
 				discarded = true
 			}
 		}
@@ -181,6 +187,7 @@ function makePossibleMoves(game: Game): Move[] {
 			cards: game.stash,
 			from: 0,
 			to: firstEmptyColumn,
+			target: undefined,
 		})
 
 	for (let from = 0; from < game.piles.length; from++) {
@@ -207,6 +214,7 @@ function makePossibleMoves(game: Game): Move[] {
 					cards,
 					from,
 					to: firstEmptyColumn,
+					target: undefined,
 				})
 		}
 
@@ -218,6 +226,7 @@ function makePossibleMoves(game: Game): Move[] {
 				cards: [card1],
 				from,
 				to: 0,
+				target: undefined,
 			})
 
 		for (let to = 0; to < game.piles.length; to++) {
@@ -239,6 +248,7 @@ function makePossibleMoves(game: Game): Move[] {
 				cards: stack1,
 				from,
 				to,
+				target: card2,
 			})
 		}
 	}

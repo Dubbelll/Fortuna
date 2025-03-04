@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { makeSteps } from '$lib/play'
 	import type { Move } from '$lib/solve'
+	import Step from './Step.svelte'
 
 	let {
 		id,
@@ -8,28 +10,27 @@
 		id: string
 		solution: Move[]
 	} = $props()
+	let steps = $derived(makeSteps(solution))
 </script>
 
 <div {id} class="container" popover="auto">
 	<button popovertarget={id} popovertargetaction="hide">CLOSE</button>
 	<div class="steps">
-		{#each solution as step}
-			<p>{step.from}&rarr;{step.to}</p>
+		{#each steps as step}
+			<Step {step} />
 		{/each}
 	</div>
 </div>
 
 <style>
 	.container {
-		position: relative;
-		grid-auto-columns: min-content;
-		grid-auto-rows: min-content;
+		grid-template-rows: min-content 1fr;
 		gap: 8px;
 		top: 8px;
 		left: 8px;
 		max-height: calc(100% - 16px);
 		padding: 8px;
-		border: 0;
+		border: 2px solid black;
 
 		&:popover-open {
 			display: grid;
@@ -37,10 +38,15 @@
 	}
 
 	button {
-		position: sticky;
-		top: 0;
 		padding: 0 8px;
 		border: 2px solid black;
 		background-color: white;
+	}
+
+	.steps {
+		display: grid;
+		grid-template-columns: max-content min-content max-content;
+		gap: 8px;
+		overflow-y: auto;
 	}
 </style>
