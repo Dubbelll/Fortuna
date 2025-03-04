@@ -25,11 +25,9 @@
 <style>
 	.container {
 		grid-template-rows: min-content 1fr;
-		gap: 8px;
 		top: 8px;
 		left: 8px;
 		max-height: calc(100% - 16px);
-		padding: 8px;
 		border: 2px solid black;
 
 		&:popover-open {
@@ -38,6 +36,7 @@
 	}
 
 	button {
+		margin: 8px;
 		padding: 0 8px;
 		border: 2px solid black;
 		background-color: white;
@@ -48,5 +47,6 @@
 		grid-template-columns: max-content min-content max-content;
 		gap: 8px;
 		overflow-y: auto;
+		padding: 0 8px 8px 8px;
 	}
 </style>
