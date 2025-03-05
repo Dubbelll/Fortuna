@@ -242,6 +242,7 @@
 <style>
 	.container {
 		display: grid;
+		grid-auto-columns: min-content;
 		gap: 8px;
 		padding: 8px;
 	}
@@ -251,7 +252,7 @@
 		display: grid;
 		justify-content: start;
 		gap: 8px;
-		max-width: min(calc(100dvw - 16px), 784px);
+		width: min(calc(100dvw - 16px), 784px);
 		max-height: calc(100dvh - 16px);
 	}
 
