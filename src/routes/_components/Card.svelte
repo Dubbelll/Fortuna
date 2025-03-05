@@ -55,29 +55,32 @@
 		aspect-ratio: 1 / 1.64;
 		background-color: white;
 		user-select: none;
+		color: var(--black);
+		border: 2px solid var(--white);
 
 		&.empty {
-			border: 2px solid lightgrey;
+			background-color: lightgrey;
 		}
 
 		&.tarot {
-			border: 2px solid black;
+			background-color: var(--black);
+			color: var(--white);
 		}
 
 		&.red {
-			border: 2px solid red;
+			background-color: var(--red);
 		}
 
 		&.green {
-			border: 2px solid green;
+			background-color: var(--green);
 		}
 
 		&.blue {
-			border: 2px solid blue;
+			background-color: var(--blue);
 		}
 
 		&.yellow {
-			border: 2px solid yellow;
+			background-color: var(--yellow);
 		}
 	}
 

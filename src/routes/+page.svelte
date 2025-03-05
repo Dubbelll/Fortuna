@@ -207,32 +207,34 @@
 	}
 </script>
 
-<div class="container">
-	<div class="game">
-		<div class="discard">
-			<Menu
-				{mode}
-				{solve}
-				{shuffle}
-				{manual}
-				{autoplay}
-				popovers={{ steps: 'steps', stats: 'stats' }}
-			/>
-			<Discard
-				{discard}
-				{stash}
-				{animateIn}
-				startMove={startDiscardMove}
-				move={moveToDiscard}
-			/>
+<div class="page">
+	<div class="content">
+		<div class="game">
+			<div class="discard">
+				<Menu
+					{mode}
+					{solve}
+					{shuffle}
+					{manual}
+					{autoplay}
+					popovers={{ steps: 'steps', stats: 'stats' }}
+				/>
+				<Discard
+					{discard}
+					{stash}
+					{animateIn}
+					startMove={startDiscardMove}
+					move={moveToDiscard}
+				/>
+			</div>
+			{#if mode === 'manual'}
+				<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
+			{/if}
+			<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
+			<StepList {solution} id="steps" />
 		</div>
-		{#if mode === 'manual'}
-			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
-		{/if}
-		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
-		<StepList {solution} id="steps" />
+		<Explanation />
 	</div>
-	<Explanation />
 </div>
 
 <svelte:head>
@@ -240,11 +242,17 @@
 </svelte:head>
 
 <style>
-	.container {
+	.page {
+		display: flex;
+		justify-content: center;
+		background-color: var(--purple);
+	}
+
+	.content {
 		display: grid;
 		grid-auto-columns: min-content;
-		gap: 8px;
-		padding: 8px;
+		gap: 16px;
+		padding: 16px;
 	}
 
 	.game {
@@ -252,8 +260,10 @@
 		display: grid;
 		justify-content: start;
 		gap: 8px;
-		width: min(calc(100dvw - 16px), 784px);
-		max-height: calc(100dvh - 16px);
+		width: min(calc(100dvw - 32px), 816px);
+		max-height: calc(100dvh - 32px);
+		padding: 16px;
+		background-color: var(--black);
 	}
 
 	.discard {
