@@ -36,18 +36,24 @@
 			{/each}
 		</div>
 	{/each}
+	<div class="label">BOARD</div>
 </div>
 
 <style>
 	.board {
 		position: relative;
 		display: grid;
-		grid-template-columns: repeat(11, 1fr);
+		grid-template-columns: repeat(11, 1fr) min-content;
 		column-gap: 8px;
 		overflow: auto;
 	}
 
 	.pile {
 		display: grid;
+	}
+
+	.label {
+		color: black;
+		writing-mode: vertical-lr;
 	}
 </style>

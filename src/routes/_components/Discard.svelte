@@ -30,6 +30,7 @@
 	{@render pile('discard3', discard[3], 3, 'GREEN')}
 	{@render pile('discard4', discard[4], 4, 'BLUE')}
 	{@render pile('discard5', discard[5], 5, 'YELLOW')}
+	<div class="label">DISCARD</div>
 </div>
 
 {#snippet pile(id: string, pile: number[], suit: number, placeholder: string)}
@@ -51,5 +52,10 @@
 
 	.pile {
 		display: grid;
+	}
+
+	.label {
+		color: black;
+		writing-mode: vertical-lr;
 	}
 </style>
