@@ -36,7 +36,6 @@
 			{/each}
 		</div>
 	{/each}
-	<div class="label">BOARD</div>
 </div>
 
 <style>
@@ -50,10 +49,5 @@
 
 	.pile {
 		display: grid;
-	}
-
-	.label {
-		color: black;
-		writing-mode: vertical-lr;
 	}
 </style>
