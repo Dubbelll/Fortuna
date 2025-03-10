@@ -16,6 +16,7 @@
 		aspect-ratio: 1 / 1.64;
 		padding-top: 6px;
 		padding-right: 2px;
+		border-radius: 4px;
 		background-color: var(--white);
 		color: var(--black);
 		user-select: none;

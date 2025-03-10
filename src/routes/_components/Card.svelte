@@ -57,6 +57,7 @@
 		user-select: none;
 		color: var(--black);
 		box-shadow: 0 -2px 8px var(--black);
+		border-radius: 4px;
 
 		&.empty {
 			background-color: var(--white);
