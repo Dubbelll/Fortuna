@@ -25,10 +25,10 @@
 <style>
 	.container {
 		grid-template-rows: min-content 1fr;
-		top: 8px;
-		left: 8px;
-		max-height: calc(100% - 16px);
-		border: 2px solid black;
+		top: 16px;
+		left: 16px;
+		max-height: calc(100% - 32px);
+		background-color: var(--black);
 
 		&:popover-open {
 			display: grid;
@@ -38,8 +38,8 @@
 	button {
 		margin: 8px;
 		padding: 0 8px;
-		border: 2px solid black;
-		background-color: white;
+		border: none;
+		background-color: var(--white);
 	}
 
 	.steps {

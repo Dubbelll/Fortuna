@@ -54,34 +54,38 @@
 <style>
 	.spot {
 		padding: 0 8px;
-		background-color: white;
-		border: 2px solid lightgrey;
+		background-color: var(--white);
 	}
 
 	.card {
 		padding: 0 8px;
 		white-space: nowrap;
-		background-color: white;
+		background-color: var(--white);
 		user-select: none;
 
+		&.empty {
+			background-color: var(--white);
+		}
+
 		&.tarot {
-			border: 2px solid black;
+			background-color: var(--brown);
+			color: var(--white);
 		}
 
 		&.red {
-			border: 2px solid red;
+			background-color: var(--red);
 		}
 
 		&.green {
-			border: 2px solid green;
+			background-color: var(--green);
 		}
 
 		&.blue {
-			border: 2px solid blue;
+			background-color: var(--blue);
 		}
 
 		&.yellow {
-			border: 2px solid yellow;
+			background-color: var(--yellow);
 		}
 	}
 
@@ -94,6 +98,7 @@
 	}
 
 	.arrow {
+		color: var(--white);
 		font-weight: bold;
 	}
 </style>
