@@ -32,7 +32,7 @@
 		>
 			<Placeholder text="EMPTY" />
 			{#each pile as card, cardIndex (card)}
-				<Card {card} {startMove} {animateIn} movable={true} offset={cardIndex * 25} />
+				<Card {card} {startMove} {animateIn} movable={true} offset={cardIndex * 28} />
 			{/each}
 		</div>
 	{/each}

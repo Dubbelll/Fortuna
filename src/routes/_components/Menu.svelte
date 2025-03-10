@@ -53,7 +53,7 @@
 
 	button {
 		padding: 0 8px;
-		border: 2px solid black;
-		background-color: white;
+		background-color: var(--white);
+		border: none;
 	}
 </style>

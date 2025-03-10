@@ -53,17 +53,17 @@
 	.card {
 		width: 64px;
 		aspect-ratio: 1 / 1.64;
-		background-color: white;
+		background-color: var(--white);
 		user-select: none;
 		color: var(--black);
-		border: 2px solid var(--white);
+		box-shadow: 0 -2px 8px var(--black);
 
 		&.empty {
-			background-color: lightgrey;
+			background-color: var(--white);
 		}
 
 		&.tarot {
-			background-color: var(--black);
+			background-color: var(--brown);
 			color: var(--white);
 		}
 
@@ -85,6 +85,7 @@
 	}
 
 	.rank {
-		padding-left: 4px;
+		padding-top: 2px;
+		padding-left: 6px;
 	}
 </style>

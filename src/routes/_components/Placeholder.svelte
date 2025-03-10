@@ -14,10 +14,10 @@
 		align-items: end;
 		width: 64px;
 		aspect-ratio: 1 / 1.64;
-		padding-top: 4px;
-		background-color: white;
-		color: lightgrey;
-		border: 2px solid lightgrey;
+		padding-top: 6px;
+		padding-right: 2px;
+		background-color: var(--white);
+		color: var(--black);
 		user-select: none;
 		writing-mode: vertical-lr;
 	}
