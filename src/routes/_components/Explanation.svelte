@@ -53,6 +53,7 @@
 <style>
 	section {
 		padding: 16px;
+		border-radius: 8px;
 		background-color: var(--white);
 	}
 

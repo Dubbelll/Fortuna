@@ -53,7 +53,8 @@
 
 	button {
 		padding: 0 8px;
-		background-color: var(--white);
 		border: none;
+		border-radius: 4px;
+		background-color: var(--white);
 	}
 </style>

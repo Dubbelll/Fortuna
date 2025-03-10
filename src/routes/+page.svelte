@@ -263,6 +263,7 @@
 		width: min(calc(100dvw - 32px), 816px);
 		max-height: calc(100dvh - 32px);
 		padding: 16px;
+		border-radius: 8px;
 		background-color: var(--black);
 	}
 
