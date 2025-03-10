@@ -54,7 +54,7 @@
 			<li>Cards of the same suit can stack if they are 1 rank apart</li>
 			<li>Cards can be discarded if they are 1 rank apart of the matching discard pile</li>
 			<li>Cards are discarded automatically if they can be</li>
-			<li>The tarot suit has two dicards: one going up, one going down</li>
+			<li>The tarot suit has two discards: one going up, one going down</li>
 			<li>The standard suits only have one discard: going up</li>
 			<li>The stash blocks discards, but only to the standard suits</li>
 		</ul>
@@ -73,7 +73,7 @@
 	a {
 		padding: 0 4px;
 		border-radius: 4px;
-		background-color: var(--purple);
+		background-color: var(--brown);
 		color: var(--white);
 		text-decoration: none;
 	}

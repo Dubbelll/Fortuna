@@ -245,7 +245,7 @@
 	.page {
 		display: flex;
 		justify-content: center;
-		background-color: var(--purple);
+		background-color: var(--brown);
 	}
 
 	.content {
