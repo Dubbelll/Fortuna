@@ -28,6 +28,7 @@
 		top: 16px;
 		left: 16px;
 		max-height: calc(100% - 32px);
+		border-radius: 8px;
 		background-color: var(--black);
 
 		&:popover-open {
@@ -39,6 +40,7 @@
 		margin: 8px;
 		padding: 0 8px;
 		border: none;
+		border-radius: 4px;
 		background-color: var(--white);
 	}
 

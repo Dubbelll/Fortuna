@@ -54,11 +54,13 @@
 <style>
 	.spot {
 		padding: 0 8px;
+		border-radius: 4px;
 		background-color: var(--white);
 	}
 
 	.card {
 		padding: 0 8px;
+		border-radius: 4px;
 		white-space: nowrap;
 		background-color: var(--white);
 		user-select: none;
