@@ -47,6 +47,7 @@
 		grid-auto-flow: column;
 		gap: 8px;
 		overflow-x: auto;
+		overflow-y: hidden;
 	}
 
 	.pile {
