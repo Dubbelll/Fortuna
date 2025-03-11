@@ -230,7 +230,7 @@
 	<div class="content">
 		<div class="game">
 			<div class="discard">
-				<Menu {mode} {solve} {shuffle} {manual} {autoplay} popovers={{ steps: 'steps' }} />
+				<Menu {solve} {shuffle} {manual} {autoplay} popovers={{ steps: 'steps' }} />
 				<Discard
 					{discard}
 					{stash}
