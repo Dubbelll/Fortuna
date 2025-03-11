@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { makeDiscard, makePiles, makeSortedDeck, type Mode } from '$lib/play'
+	import { makeDiscard, makeSortedDeck, type Mode } from '$lib/play'
 	import type {
 		GeneratedMessage,
 		GenerateMessage,
@@ -71,9 +71,12 @@
 	function shuffle() {
 		mode = 'idle'
 		discard = makeDiscard()
-		piles = makePiles()
-		solution = []
+		stash = []
+		piles = [[], [], [], [], [], [], [], [], [], [], []]
 		animateInById = {}
+
+		const message: GenerateMessage = { key: 'generate', payload: undefined }
+		solver.postMessage(message)
 	}
 
 	function manual() {
@@ -227,14 +230,7 @@
 	<div class="content">
 		<div class="game">
 			<div class="discard">
-				<Menu
-					{mode}
-					{solve}
-					{shuffle}
-					{manual}
-					{autoplay}
-					popovers={{ steps: 'steps', stats: 'stats' }}
-				/>
+				<Menu {mode} {solve} {shuffle} {manual} {autoplay} popovers={{ steps: 'steps' }} />
 				<Discard
 					{discard}
 					{stash}
