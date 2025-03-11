@@ -1,3 +1,4 @@
+import { makeDiscard, makePiles } from './play'
 import { PriorityQueue } from './queue'
 
 export interface Game {
@@ -23,6 +24,16 @@ export interface Move {
 	target: number | undefined
 }
 
+export interface GenerateMessage {
+	key: 'generate'
+	payload: undefined
+}
+
+export interface GeneratedMessage {
+	key: 'generated'
+	payload: { piles: number[][]; solution: Move[] }
+}
+
 export interface SolveMessage {
 	key: 'solve'
 	payload: { piles: number[][]; discard: number[][]; stash: number[] }
@@ -42,7 +53,13 @@ export interface UnsolvableMessage {
 const SOLVED_PENALTY = -1.1
 
 // worker
-self.onmessage = (event: MessageEvent<SolveMessage>) => {
+self.onmessage = (event: MessageEvent<GenerateMessage | SolveMessage>) => {
+	if (event.data.key === 'generate') {
+		const payload = generate()
+		const message: GeneratedMessage = { key: 'generated', payload }
+		self.postMessage(message)
+	}
+
 	if (event.data.key === 'solve') {
 		const game = makeGame(event.data.payload)
 		const solution = solve(game)
@@ -58,6 +75,22 @@ self.onmessage = (event: MessageEvent<SolveMessage>) => {
 }
 
 // playing
+function generate(): {
+	piles: number[][]
+	solution: Move[]
+} {
+	const discard = makeDiscard()
+	const stash: number[] = []
+	let piles: number[][] = []
+	let solution: Move[] | undefined = undefined
+	while (solution === undefined) {
+		piles = makePiles()
+		solution = solve(makeGame({ piles, discard, stash }))
+	}
+
+	return { piles, solution }
+}
+
 function solve(start: Game): Move[] | undefined {
 	const queue: PriorityQueue = new PriorityQueue(start)
 	const openKeys: Record<string, boolean> = { [start.key]: true }

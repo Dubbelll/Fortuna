@@ -1,7 +1,13 @@
 <script lang="ts">
-	import { solvable1 } from '$lib/example'
 	import { makeDiscard, makePiles, makeSortedDeck, type Mode } from '$lib/play'
-	import type { Move, SolvedMessage, SolveMessage, UnsolvableMessage } from '$lib/solve'
+	import type {
+		GeneratedMessage,
+		GenerateMessage,
+		Move,
+		SolvedMessage,
+		SolveMessage,
+		UnsolvableMessage,
+	} from '$lib/solve'
 	import Solver from '$lib/solve?worker'
 	import { onMount } from 'svelte'
 	import type { TransitionConfig } from 'svelte/transition'
@@ -13,7 +19,7 @@
 	import StepList from './_components/StepList.svelte'
 
 	let mode: Mode = $state('idle')
-	let piles = $state(solvable1.piles)
+	let piles: number[][] = $state([[], [], [], [], [], [], [], [], [], [], []])
 	let discard = $state(makeDiscard())
 	let stash: number[] = $state([])
 	let solution: Move[] = $state([])
@@ -27,7 +33,14 @@
 
 	onMount(() => {
 		solver = new Solver()
-		solver.onmessage = (event: MessageEvent<SolvedMessage | UnsolvableMessage>) => {
+		solver.onmessage = (
+			event: MessageEvent<GeneratedMessage | SolvedMessage | UnsolvableMessage>,
+		) => {
+			if (event.data.key === 'generated') {
+				mode = 'solved'
+				piles = event.data.payload.piles
+				solution = event.data.payload.solution
+			}
 			if (event.data.key === 'solved') {
 				mode = 'solved'
 				solution = event.data.payload
@@ -37,6 +50,9 @@
 				solution = []
 			}
 		}
+
+		const message: GenerateMessage = { key: 'generate', payload: undefined }
+		solver.postMessage(message)
 	})
 
 	function solve() {
