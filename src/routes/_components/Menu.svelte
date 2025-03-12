@@ -1,38 +1,39 @@
 <script lang="ts">
+	import { STEP_LIST_ID } from '$lib/popover'
+	import type { Move } from '$lib/solve'
 	import Mode, { type Mode as ModeType } from './Mode.svelte'
 
 	let {
-		popovers,
+		mode,
+		solution,
+		selectMode,
 		solve,
 		shuffle,
 		manual,
 		autoplay,
 	}: {
-		popovers: { steps: string }
+		mode: ModeType
+		solution: Move[]
+		selectMode: (mode: ModeType) => void
 		solve: () => void
 		shuffle: () => void
 		manual: () => void
 		autoplay: () => void
 	} = $props()
-	let mode: ModeType = $state('auto')
-
-	function selectMode(selected: ModeType) {
-		if (mode === selected) return
-
-		mode = selected
-		if (selected === 'auto') shuffle()
-		if (selected === 'manual') manual()
-	}
 </script>
 
 <div class="menu">
-	<Mode {mode} select={selectMode} />
+	<Mode {mode} {selectMode} />
 	{#if mode === 'auto'}
 		<button onclick={autoplay}>PLAY</button>
-		<button popovertarget={popovers.steps}>STEPS</button>
+		<button popovertarget={STEP_LIST_ID}>STEPS</button>
 		<button onclick={shuffle}>SHUFFLE</button>
 	{/if}
 	{#if mode === 'manual'}
+		{#if solution.length > 0}
+			<button onclick={autoplay}>PLAY</button>
+			<button popovertarget={STEP_LIST_ID}>STEPS</button>
+		{/if}
 		<button onclick={solve}>SOLVE</button>
 	{/if}
 </div>

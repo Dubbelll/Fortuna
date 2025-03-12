@@ -1,14 +1,17 @@
 <script lang="ts">
 	export type Mode = 'auto' | 'manual'
 
-	let { mode, select }: { mode: Mode; select: (mode: Mode) => void } = $props()
+	let { mode, selectMode }: { mode: Mode; selectMode: (mode: Mode) => void } = $props()
 </script>
 
 <div class="mode">
-	<button class={{ left: true, selected: mode === 'auto' }} onclick={() => select('auto')}>
+	<button class={{ left: true, selected: mode === 'auto' }} onclick={() => selectMode('auto')}>
 		AUTO
 	</button>
-	<button class={{ right: true, selected: mode === 'manual' }} onclick={() => select('manual')}>
+	<button
+		class={{ right: true, selected: mode === 'manual' }}
+		onclick={() => selectMode('manual')}
+	>
 		MANUAL
 	</button>
 </div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { makeDiscard, makeSortedDeck, type Mode } from '$lib/play'
+	import { makeDiscard, makeSortedDeck } from '$lib/play'
 	import type {
 		GeneratedMessage,
 		GenerateMessage,
@@ -16,9 +16,11 @@
 	import Discard from './_components/Discard.svelte'
 	import Explanation from './_components/Explanation.svelte'
 	import Menu from './_components/Menu.svelte'
+	import type { Mode } from './_components/Mode.svelte'
 	import StepList from './_components/StepList.svelte'
+	import UnsolvableToast from './_components/UnsolvableToast.svelte'
 
-	let mode: Mode = $state('idle')
+	let mode = $state<Mode>('auto')
 	let piles: number[][] = $state([[], [], [], [], [], [], [], [], [], [], []])
 	let discard = $state(makeDiscard())
 	let stash: number[] = $state([])
@@ -30,6 +32,7 @@
 
 	let solver: Worker
 	let animateInById: Record<string, DOMRect | undefined> = {}
+	let unsolvableToast: UnsolvableToast
 
 	onMount(() => {
 		solver = new Solver()
@@ -37,17 +40,15 @@
 			event: MessageEvent<GeneratedMessage | SolvedMessage | UnsolvableMessage>,
 		) => {
 			if (event.data.key === 'generated') {
-				mode = 'solved'
 				piles = event.data.payload.piles
 				solution = event.data.payload.solution
 			}
 			if (event.data.key === 'solved') {
-				mode = 'solved'
 				solution = event.data.payload
 			}
 			if (event.data.key === 'unsolvable') {
-				mode = 'unsolvable'
 				solution = []
+				unsolvableToast.show()
 			}
 		}
 
@@ -55,8 +56,15 @@
 		solver.postMessage(message)
 	})
 
+	function selectMode(selected: Mode) {
+		if (mode === selected) return
+
+		mode = selected
+		if (selected === 'auto') shuffle()
+		if (selected === 'manual') manual()
+	}
+
 	function solve() {
-		mode = 'solving'
 		const message: SolveMessage = {
 			key: 'solve',
 			payload: {
@@ -69,7 +77,6 @@
 	}
 
 	function shuffle() {
-		mode = 'idle'
 		discard = makeDiscard()
 		stash = []
 		piles = [[], [], [], [], [], [], [], [], [], [], []]
@@ -80,7 +87,6 @@
 	}
 
 	function manual() {
-		mode = 'manual'
 		discard = makeDiscard()
 		deck = makeSortedDeck()
 		piles = [[], [], [], [], [], [], [], [], [], [], []]
@@ -89,12 +95,10 @@
 	}
 
 	function autoplay() {
-		mode = 'autoplaying'
 		let interval = setInterval(() => {
 			if (solution.length > 0) next()
 			else {
 				clearInterval(interval)
-				mode = 'idle'
 			}
 		}, 320)
 	}
@@ -230,7 +234,7 @@
 	<div class="content">
 		<div class="game">
 			<div class="discard">
-				<Menu {solve} {shuffle} {manual} {autoplay} popovers={{ steps: 'steps' }} />
+				<Menu {mode} {solution} {selectMode} {solve} {shuffle} {manual} {autoplay} />
 				<Discard
 					{discard}
 					{stash}
@@ -243,7 +247,8 @@
 				<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
 			{/if}
 			<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
-			<StepList {solution} id="steps" />
+			<StepList {solution} />
+			<UnsolvableToast bind:this={unsolvableToast} />
 		</div>
 		<Explanation />
 	</div>
