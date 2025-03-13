@@ -9,7 +9,7 @@
 </script>
 
 <div id={STEP_LIST_ID} class="stepList" popover="auto">
-	<button popovertarget={STEP_LIST_ID} popovertargetaction="hide">CLOSE</button>
+	<button class="close" popovertarget={STEP_LIST_ID} popovertargetaction="hide">&#x2A09;</button>
 	<div class="steps">
 		{#each steps as step}
 			<Step {step} />
@@ -19,12 +19,15 @@
 
 <style>
 	.stepList {
+		position: fixed;
+		inset: unset;
+		top: 0;
+		right: 0;
 		grid-template-rows: min-content 1fr;
-		top: 16px;
-		left: 16px;
-		max-height: calc(100% - 32px);
+		gap: 16px;
+		max-height: 100%;
+		overflow-y: auto;
 		border: none;
-		border-radius: 8px;
 		background-color: var(--black);
 
 		&:popover-open {
@@ -32,19 +35,23 @@
 		}
 	}
 
-	button {
-		margin: 16px;
-		padding: 0 8px;
-		border: none;
-		border-radius: 4px;
-		background-color: var(--white);
-	}
-
 	.steps {
 		display: grid;
 		grid-template-columns: max-content min-content max-content;
 		gap: 8px;
-		overflow-y: auto;
-		padding: 0 16px 16px 16px;
+		padding: 16px;
+	}
+
+	.close {
+		position: sticky;
+		top: 16px;
+		right: 16px;
+		justify-self: end;
+		width: 24px;
+		height: 24px;
+		border: none;
+		border-radius: 4px;
+		background-color: var(--white);
+		box-shadow: 0 0 16px var(--black);
 	}
 </style>

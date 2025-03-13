@@ -231,27 +231,25 @@
 </script>
 
 <div class="page">
-	<div class="content">
-		<div class="game">
-			<div class="discard">
-				<Menu {mode} {solution} {selectMode} {solve} {shuffle} {manual} {autoplay} />
-				<Discard
-					{discard}
-					{stash}
-					{animateIn}
-					startMove={startDiscardMove}
-					move={moveToDiscard}
-				/>
-			</div>
-			{#if mode === 'manual'}
-				<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
-			{/if}
-			<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
-			<StepList {solution} />
-			<UnsolvableToast bind:this={unsolvableToast} />
+	<div class="game">
+		<div class="discard">
+			<Menu {mode} {solution} {selectMode} {solve} {shuffle} {manual} {autoplay} />
+			<Discard
+				{discard}
+				{stash}
+				{animateIn}
+				startMove={startDiscardMove}
+				move={moveToDiscard}
+			/>
 		</div>
-		<Explanation />
+		{#if mode === 'manual'}
+			<Deck {deck} startMove={startDeckMove} move={moveToDeck} />
+		{/if}
+		<Board {piles} {animateIn} startMove={startBoardMove} move={moveToBoard} />
+		<StepList {solution} />
+		<UnsolvableToast bind:this={unsolvableToast} />
 	</div>
+	<Explanation />
 </div>
 
 <svelte:head>
@@ -260,12 +258,6 @@
 
 <style>
 	.page {
-		display: flex;
-		justify-content: center;
-		background-color: var(--brown);
-	}
-
-	.content {
 		display: grid;
 		grid-auto-columns: min-content;
 		gap: 16px;
