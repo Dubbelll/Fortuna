@@ -260,6 +260,7 @@
 	.page {
 		display: grid;
 		grid-auto-columns: min-content;
+		justify-content: center;
 		gap: 16px;
 		padding: 16px;
 	}
