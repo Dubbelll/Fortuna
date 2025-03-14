@@ -4,6 +4,7 @@ Solver for Zachtronics' Fortune's Foundation solitaire variant
 
 ### Docker
 
+`pnpm run build`
 `docker build -t fortuna:latest .`  
 `docker run -p 3000:80 --rm --name fortuna fortuna`  
 `docker buildx build --platform linux/arm64 -t registry.dubbelll.dev/fortuna:latest --push .`
