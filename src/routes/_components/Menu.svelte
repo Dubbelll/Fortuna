@@ -25,14 +25,14 @@
 <div class="menu">
 	<Mode {mode} {selectMode} />
 	{#if mode === 'auto'}
-		<button onclick={autoplay}>PLAY</button>
-		<button popovertarget={STEP_LIST_ID}>STEPS</button>
+		<button onclick={autoplay}>AUTOPLAY</button>
+		<button popovertarget={STEP_LIST_ID}>SOLUTION</button>
 		<button onclick={shuffle}>SHUFFLE</button>
 	{/if}
 	{#if mode === 'manual'}
 		{#if solution.length > 0}
-			<button onclick={autoplay}>PLAY</button>
-			<button popovertarget={STEP_LIST_ID}>STEPS</button>
+			<button onclick={autoplay}>AUTOPLAY</button>
+			<button popovertarget={STEP_LIST_ID}>SOLUTION</button>
 		{/if}
 		<button onclick={solve}>SOLVE</button>
 	{/if}
