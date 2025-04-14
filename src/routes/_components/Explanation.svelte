@@ -10,6 +10,10 @@
 			made by
 			<a href="https://www.zachtronics.com">Zachtronics</a>
 		</p>
+		<p>
+			Code available on
+			<a href="https://github.com/Dubbelll/Fortuna">GitHub</a>
+		</p>
 	</section>
 	<section>
 		<h1>WHY</h1>
